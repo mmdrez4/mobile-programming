@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".MainActivity">
-    
+
     <LinearLayout
         android:layout_width="match_parent"
         android:orientation="horizontal"
@@ -60,6 +60,40 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/open_second_activity" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1"
+        android:gravity="center|bottom"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/refresh"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:background="#90EE90"
+            android:layout_margin="4dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|bottom"
+            android:text="refresh" />
+
+        <Button
+            android:id="@+id/add_coin"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_margin="4dp"
+            android:background="#90EE90"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:text="add coins" />
+
+
+    </LinearLayout>
+
 
 
 </LinearLayout>
