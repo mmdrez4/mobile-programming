@@ -36,8 +36,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        openSecondActivity = findViewById(R.id.open_second_activity);
-
         ProgressBar progressBar = findViewById(R.id.progress_circular);
 
         imageButton = findViewById(R.id.coin_image);
@@ -50,11 +48,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        refreshButton = findViewById(R.id.refresh);
 
-        openSecondActivity.setOnClickListener(new View.OnClickListener() {
+        refreshButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this, SecondActivity.class));
+
             }
         });
 

@@ -8,7 +8,7 @@
 
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         tools:context=".MainActivity">
 
@@ -17,24 +17,24 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+        <!--        <LinearLayout-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:orientation="horizontal">-->
 
-            <Button
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="aaa" />
+        <!--            <Button-->
+        <!--                android:layout_width="0dp"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:layout_weight="1"-->
+        <!--                android:text="aaa" />-->
 
-            <Button
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="bbb" />
+        <!--            <Button-->
+        <!--                android:layout_width="0dp"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:layout_weight="1"-->
+        <!--                android:text="bbb" />-->
 
-        </LinearLayout>
+        <!--        </LinearLayout>-->
 
         <!--    <EditText-->
         <!--        android:id="@+id/myEditText"-->
@@ -134,52 +134,40 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-    </LinearLayout>
+        </LinearLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <Button
-        android:id="@+id/open_second_activity"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/open_second_activity" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="631dp"
-        android:layout_weight="1"
-        android:gravity="center|bottom"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/refresh"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start|bottom"
-            android:layout_margin="4dp"
+            android:layout_height="631dp"
             android:layout_weight="1"
-            android:background="#90EE90"
-            android:text="refresh" />
+            android:gravity="center|bottom"
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/add_coin"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|bottom"
-            android:layout_margin="4dp"
-            android:layout_weight="1"
-            android:background="#90EE90"
-            android:text="add coins" />
+            <Button
+                android:id="@+id/refresh"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start|bottom"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:background="#90EE90"
+                android:text="refresh" />
+
+            <Button
+                android:id="@+id/add_coin"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|bottom"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:background="#90EE90"
+                android:text="add coins" />
+
+        </LinearLayout>
+
 
     </LinearLayout>
 
-
-</LinearLayout>
-
-    </ScrollView>
+</ScrollView>
