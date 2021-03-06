@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -20,9 +21,10 @@ public class MainActivity extends AppCompatActivity {
     private int mProgressStatus = 0;
     ProgressBar progressBar;
     ImageButton imageButton;
+    LinearLayout coinsLayout;
+    Button addCoins;
     Integer number;
     TextView textView;
-    Button button;
     EditText first;
     EditText second;
 
@@ -56,6 +58,10 @@ public class MainActivity extends AppCompatActivity {
 
         refreshButton = findViewById(R.id.refresh);
 
+        coinsLayout = findViewById(R.id.coins_layouts);
+
+        addCoins = findViewById(R.id.add_coin);
+
         refreshButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -82,6 +88,13 @@ public class MainActivity extends AppCompatActivity {
                         });
                     }
                 }).start();
+            }
+        });
+
+        addCoins.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
             }
         });
 
