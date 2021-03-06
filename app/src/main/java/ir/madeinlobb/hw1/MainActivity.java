@@ -3,7 +3,6 @@ package ir.madeinlobb.hw1;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.JsonReader;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -11,24 +10,22 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.gson.Gson;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.concurrent.ThreadPoolExecutor;
 
-import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -38,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private int mProgressStatus = 0;
     ProgressBar progressBar;
     ImageButton imageButton;
+    ScrollView scrollView;
     LinearLayout coinsLayout;
     GetExample getExample;
     Gson gson;
@@ -47,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
     TextView textView;
     EditText first;
     EditText second;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +75,9 @@ public class MainActivity extends AppCompatActivity {
 
         refreshButton = findViewById(R.id.refresh);
 
-        coinsLayout = findViewById(R.id.coins_layouts);
+        scrollView = findViewById(R.id.scroll_view);
+
+        coinsLayout = findViewById(R.id.coin_layouts);
 
         addCoins = findViewById(R.id.add_coin);
 
@@ -166,16 +165,34 @@ public class MainActivity extends AppCompatActivity {
                         .build();
                 try {
                     Response response = client.newCall(request).execute();
-//                            final String myResponse = response.body().string();
-                    ReqResCoins rrC = gson.fromJson(response.body().charStream(), ReqResCoins.class);
-//                            Log.d("MMD", myResponse);
-                } catch (IOException e) {
+                    String jsonData = response.body().string();
+                    JSONObject Jobject = new JSONObject(jsonData);
+                    JSONArray Jarray = Jobject.getJSONArray("data");
+                    JSONObject object2;
+
+                    for (int i = 0; i < Jarray.length(); i++) {
+                        JSONObject object = Jarray.getJSONObject(i);
+                        String name = object.getString("name");
+                        String symbol = object.getString("symbol");
+                        object2 = object.getJSONObject("quote").getJSONObject("USD");
+                        int price = object2.getInt("price");
+                        double changeHour = object2.getDouble("percent_change_1h");
+                        double changeDay = object2.getDouble("percent_change_24h");
+                        double changeWeek = object2.getDouble("percent_change_7d");
+
+
+                        Log.d("MMD2", name + "-" + symbol + "-" + price + "-" + changeHour + "-" + changeDay + "-" + changeWeek);
+                    }
+                } catch (IOException | JSONException e) {
                     e.printStackTrace();
                 }
             }
         };
         thread.start();
     }
+
+
+
 
     @Override
     protected void onDestroy() {

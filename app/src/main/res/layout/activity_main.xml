@@ -6,6 +6,7 @@
     android:layout_height="fill_parent">
 
     <ScrollView
+        android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -79,7 +80,7 @@
             <!--        android:text="@string/name" />-->
 
             <LinearLayout
-                android:id="@+id/coins_layouts"
+                android:id="@+id/coin_layouts"
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
                 android:orientation="horizontal">
