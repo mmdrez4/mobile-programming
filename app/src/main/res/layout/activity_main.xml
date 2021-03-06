@@ -15,12 +15,19 @@
             android:orientation="vertical"
             tools:context=".MainActivity">
 
-            <ProgressBar
-                android:id="@+id/progress_circular"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:visibility="invisible" />
+                android:layout_height="match_parent"
+                android:background="#2F4F4F">
+
+                <ProgressBar
+                    android:id="@+id/progress_circular"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:visibility="invisible"  />
+
+            </LinearLayout>
 
             <!--        <LinearLayout-->
             <!--            android:layout_width="match_parent"-->
@@ -92,7 +99,7 @@
                         android:id="@+id/coin_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="216dp"
+                        android:layout_marginRight="196dp"
                         android:text="BTS | Bitcoin"
                         android:textSize="20sp"
                         app:layout_constraintRight_toRightOf="parent"
@@ -102,7 +109,7 @@
                         android:id="@+id/coin_price"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="280dp"
+                        android:layout_marginLeft="260dp"
                         android:gravity="end"
                         android:text="100$"
                         app:layout_constraintLeft_toLeftOf="@+id/coin_name"
@@ -113,7 +120,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="56dp"
-                        android:layout_marginRight="288dp"
+                        android:layout_marginRight="268dp"
                         android:text="1h: 0%"
                         app:layout_constraintRight_toRightOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -149,40 +156,37 @@
                 android:orientation="horizontal">
 
 
+                <RelativeLayout
+                    android:id="@+id/footer"
+                    android:layout_width="fill_parent"
+                    android:layout_height="100dp"
+                    android:background="#DCDCDC">
 
+                    <Button
+                        android:id="@+id/refresh"
+                        android:layout_width="197dp"
+                        android:layout_height="72dp"
+                        android:layout_centerVertical="true"
+                        android:background="#90EE90"
+                        android:text="refresh" />
+
+                    <Button
+                        android:id="@+id/add_coin"
+                        android:layout_width="181dp"
+                        android:layout_height="72dp"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginLeft="20dp"
+                        android:layout_toEndOf="@+id/refresh"
+                        android:layout_toRightOf="@+id/refresh"
+                        android:background="#90EE90"
+                        android:text="add coins" />
+
+                </RelativeLayout>
             </LinearLayout>
 
         </LinearLayout>
 
     </ScrollView>
-
-    <RelativeLayout
-        android:id="@+id/footer"
-        android:layout_width="fill_parent"
-        android:layout_height="100dp"
-        android:background="#DCDCDC"
-        android:layout_alignParentBottom="true">
-
-        <Button
-            android:id="@+id/refresh"
-            android:layout_width="197dp"
-            android:layout_height="72dp"
-            android:layout_centerVertical="true"
-            android:background="#90EE90"
-            android:text="refresh" />
-
-        <Button
-            android:id="@+id/add_coin"
-            android:layout_width="197dp"
-            android:layout_height="72dp"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="10dp"
-            android:layout_marginLeft="20dp"
-            android:layout_toEndOf="@+id/refresh"
-            android:layout_toRightOf="@+id/refresh"
-            android:background="#90EE90"
-            android:text="add coins" />
-
-    </RelativeLayout>
 
 </RelativeLayout>

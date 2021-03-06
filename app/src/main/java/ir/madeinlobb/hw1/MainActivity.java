@@ -3,6 +3,8 @@ package ir.madeinlobb.hw1;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.JsonReader;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,6 +15,19 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.gson.Gson;
+
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.concurrent.ThreadPoolExecutor;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+
 public class MainActivity extends AppCompatActivity {
 
     private Button openSecondActivity;
@@ -22,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     ProgressBar progressBar;
     ImageButton imageButton;
     LinearLayout coinsLayout;
+    GetExample getExample;
     Button addCoins;
     Integer number;
     TextView textView;
@@ -91,10 +107,35 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        getExample = new GetExample();
+
+        Gson gson = new Gson();
+
         addCoins.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+//                ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor();
+                Thread thread = new Thread() {
+                    @Override
+                    public void run() {
+                        OkHttpClient client = new OkHttpClient().newBuilder()
+                                .build();
+                        Request request = new Request.Builder()
+                                .url("https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=1&limit=2&aux=platform&cryptocurrency_type=coins")
+                                .method("GET", null)
+                                .addHeader("X-CMC_PRO_API_KEY", "32d8965f-ed31-4925-975b-da24cf243138")
+                                .addHeader("Cookie", "__cfduid=d27e1c676eafe6c7134bd57d707fcae1c1615039668")
+                                .build();
+                        try {
+                            Response response = client.newCall(request).execute();
+                            final String myResponse = response.body().string();
+                            Log.d("MMD", myResponse);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                };
+                thread.start();
             }
         });
 
