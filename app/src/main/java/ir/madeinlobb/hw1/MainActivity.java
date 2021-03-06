@@ -1,28 +1,24 @@
 package ir.madeinlobb.hw1;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.util.Log;
+import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
     private Button openSecondActivity;
-//    CircularProgressButton circularProgressButton;
+    //    CircularProgressButton circularProgressButton;
     private Button refreshButton;
+    private int mProgressStatus = 0;
+    ProgressBar progressBar;
     ImageButton imageButton;
     Integer number;
     TextView textView;
@@ -35,8 +31,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        ProgressBar progressBar = findViewById(R.id.progress_circular);
+/*
+        Handler handler = new Handler();
+        private Runnable runnableCode = new Runnable() {
+            @Override
+            public void run() {
+                //
+            }
+        };
+        handler.postDelayed(runnableCode, 2000);
+ */
 
         imageButton = findViewById(R.id.coin_image);
 
@@ -48,14 +52,39 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        progressBar = findViewById(R.id.progress_circular);
+
         refreshButton = findViewById(R.id.refresh);
 
         refreshButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                progressBar.setVisibility(View.VISIBLE);
+                final Handler handler = new Handler();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        while (mProgressStatus < 100){
+                            mProgressStatus++;
+                            android.os.SystemClock.sleep(50);
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    progressBar.setProgress(mProgressStatus);
+                                }
+                            });
+                        }
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressBar.setVisibility(View.INVISIBLE);
+                            }
+                        });
+                    }
+                }).start();
             }
         });
+
 
 //        CountDownTimer countDownTimer = new CountDownTimer(10000,1000) {
 //            @Override
