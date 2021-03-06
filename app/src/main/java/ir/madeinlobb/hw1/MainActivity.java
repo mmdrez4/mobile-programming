@@ -2,19 +2,28 @@ package ir.madeinlobb.hw1;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
     private Button openSecondActivity;
+//    CircularProgressButton circularProgressButton;
+    private Button refreshButton;
+    ImageButton imageButton;
     Integer number;
     TextView textView;
     Button button;
@@ -28,6 +37,19 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         openSecondActivity = findViewById(R.id.open_second_activity);
+
+        ProgressBar progressBar = findViewById(R.id.progress_circular);
+
+        imageButton = findViewById(R.id.coin_image);
+
+//        circularProgressButton = (CircularProgressButton)findViewById(R.id.refresh);
+        openSecondActivity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
 
         openSecondActivity.setOnClickListener(new View.OnClickListener() {
             @Override
