@@ -43,10 +43,10 @@ public class MainActivity extends AppCompatActivity {
         imageButton = findViewById(R.id.coin_image);
 
 //        circularProgressButton = (CircularProgressButton)findViewById(R.id.refresh);
-        openSecondActivity.setOnClickListener(new View.OnClickListener() {
+        imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                startActivity(new Intent(MainActivity.this, SecondActivity.class));
             }
         });
 
