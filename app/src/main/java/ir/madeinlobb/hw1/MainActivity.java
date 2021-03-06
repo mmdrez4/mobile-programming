@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -38,7 +40,9 @@ public class MainActivity extends AppCompatActivity {
     ImageButton imageButton;
     LinearLayout coinsLayout;
     GetExample getExample;
+    Gson gson;
     Button addCoins;
+    OkHttpClient client;
     Integer number;
     TextView textView;
     EditText first;
@@ -86,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        while (mProgressStatus < 100){
+                        while (mProgressStatus < 100) {
                             mProgressStatus++;
                             android.os.SystemClock.sleep(50);
                             handler.post(new Runnable() {
@@ -107,35 +111,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        getExample = new GetExample();
-
-        Gson gson = new Gson();
-
         addCoins.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor();
-                Thread thread = new Thread() {
-                    @Override
-                    public void run() {
-                        OkHttpClient client = new OkHttpClient().newBuilder()
-                                .build();
-                        Request request = new Request.Builder()
-                                .url("https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=1&limit=2&aux=platform&cryptocurrency_type=coins")
-                                .method("GET", null)
-                                .addHeader("X-CMC_PRO_API_KEY", "32d8965f-ed31-4925-975b-da24cf243138")
-                                .addHeader("Cookie", "__cfduid=d27e1c676eafe6c7134bd57d707fcae1c1615039668")
-                                .build();
-                        try {
-                            Response response = client.newCall(request).execute();
-                            final String myResponse = response.body().string();
-                            Log.d("MMD", myResponse);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                };
-                thread.start();
+                getWebService();
             }
         });
 
@@ -169,6 +148,33 @@ public class MainActivity extends AppCompatActivity {
 //                textView.setText("salam" + name);
 //            }
 //        });
+    }
+
+    private void getWebService() {
+        gson = new Gson();
+        //                ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor();
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                client = new OkHttpClient().newBuilder()
+                        .build();
+                Request request = new Request.Builder()
+                        .url("https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=1&limit=2&aux=platform&cryptocurrency_type=coins")
+                        .method("GET", null)
+                        .addHeader("X-CMC_PRO_API_KEY", "32d8965f-ed31-4925-975b-da24cf243138")
+                        .addHeader("Cookie", "__cfduid=d27e1c676eafe6c7134bd57d707fcae1c1615039668")
+                        .build();
+                try {
+                    Response response = client.newCall(request).execute();
+//                            final String myResponse = response.body().string();
+                    ReqResCoins rrC = gson.fromJson(response.body().charStream(), ReqResCoins.class);
+//                            Log.d("MMD", myResponse);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        thread.start();
     }
 
     @Override
