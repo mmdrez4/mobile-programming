@@ -20,9 +20,12 @@ import com.google.gson.Gson;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -37,14 +40,11 @@ public class MainActivity extends AppCompatActivity {
     ImageButton imageButton;
     ScrollView scrollView;
     LinearLayout coinsLayout;
-    GetExample getExample;
+    TextView textView;
     Gson gson;
     Button addCoins;
     OkHttpClient client;
-    Integer number;
-    TextView textView;
-    EditText first;
-    EditText second;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,6 +151,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void getWebService() {
         gson = new Gson();
+        final TextView coinName = findViewById(R.id.coin_name);
+        final TextView coinPrice = findViewById(R.id.coin_price);
         //                ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor();
         Thread thread = new Thread() {
             @Override
@@ -158,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
                 client = new OkHttpClient().newBuilder()
                         .build();
                 Request request = new Request.Builder()
-                        .url("https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=1&limit=2&aux=platform&cryptocurrency_type=coins")
+                        .url("https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=1&limit=1&aux=platform&cryptocurrency_type=coins")
                         .method("GET", null)
                         .addHeader("X-CMC_PRO_API_KEY", "32d8965f-ed31-4925-975b-da24cf243138")
                         .addHeader("Cookie", "__cfduid=d27e1c676eafe6c7134bd57d707fcae1c1615039668")
@@ -168,18 +170,25 @@ public class MainActivity extends AppCompatActivity {
                     String jsonData = response.body().string();
                     JSONObject Jobject = new JSONObject(jsonData);
                     JSONArray Jarray = Jobject.getJSONArray("data");
-                    JSONObject object2;
 
+                    JSONObject object2;
                     for (int i = 0; i < Jarray.length(); i++) {
                         JSONObject object = Jarray.getJSONObject(i);
-                        String name = object.getString("name");
-                        String symbol = object.getString("symbol");
+                        final String name = object.getString("name");
+                        final String symbol = object.getString("symbol");
                         object2 = object.getJSONObject("quote").getJSONObject("USD");
-                        int price = object2.getInt("price");
-                        double changeHour = object2.getDouble("percent_change_1h");
-                        double changeDay = object2.getDouble("percent_change_24h");
-                        double changeWeek = object2.getDouble("percent_change_7d");
+                        final int price = object2.getInt("price");
+                        int changeHour = object2.getInt("percent_change_1h");
+                        int changeDay = object2.getInt("percent_change_24h");
+                        int changeWeek = object2.getInt("percent_change_7d");
 
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                coinName.setText(symbol + "|" + name);
+                                coinPrice.setText(price + "$");
+                            }
+                        });
 
                         Log.d("MMD2", name + "-" + symbol + "-" + price + "-" + changeHour + "-" + changeDay + "-" + changeWeek);
                     }
@@ -191,7 +200,59 @@ public class MainActivity extends AppCompatActivity {
         thread.start();
     }
 
+    private void getWebService2() {
+        final TextView coinName = findViewById(R.id.coin_name);
+        TextView coinPrice = findViewById(R.id.coin_price);
 
+        OkHttpClient client = new OkHttpClient();
+        String url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=1&limit=2&aux=platform&cryptocurrency_type=coins";
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()){
+                    String jsonData = response.body().string();
+                    JSONObject Jobject = null;
+                    try {
+                        Jobject = new JSONObject(jsonData);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        JSONArray Jarray = Jobject.getJSONArray("data");
+                        for (int i = 0; i < Jarray.length(); i++) {
+                            JSONObject object = Jarray.getJSONObject(i);
+                            String name = object.getString("name");
+                            String symbol = object.getString("symbol");
+                            Log.d("TAG", name + " : " + symbol);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+//                    MainActivity.this.runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            coinName.setText();
+//                        }
+//                    });
+                }
+            }
+        });
+
+    }
+
+    private void updateLinearLayout() {
+
+
+    }
 
 
     @Override
