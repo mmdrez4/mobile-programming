@@ -3,10 +3,10 @@ package ir.madeinlobb.hw1;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -20,7 +20,6 @@ import com.google.gson.Gson;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.IOException;
 
@@ -41,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     ScrollView scrollView;
     LinearLayout coinsLayout;
     TextView textView;
+    HandlerThread handlerThread = new HandlerThread("handlerThread");
     Gson gson;
     Button addCoins;
     OkHttpClient client;
@@ -150,7 +150,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getWebService() {
-        gson = new Gson();
         final TextView coinName = findViewById(R.id.coin_name);
         final TextView coinPrice = findViewById(R.id.coin_price);
         //                ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor();
@@ -173,6 +172,8 @@ public class MainActivity extends AppCompatActivity {
 
                     JSONObject object2;
                     for (int i = 0; i < Jarray.length(); i++) {
+                        LinearLayout linearLayout = new LinearLayout(MainActivity.this);
+                        scrollView.addView(linearLayout);
                         JSONObject object = Jarray.getJSONObject(i);
                         final String name = object.getString("name");
                         final String symbol = object.getString("symbol");
@@ -187,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
                             public void run() {
                                 coinName.setText(symbol + "|" + name);
                                 coinPrice.setText(price + "$");
+
                             }
                         });
 
@@ -258,6 +260,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        handlerThread.quit();
     }
 
     @Override
