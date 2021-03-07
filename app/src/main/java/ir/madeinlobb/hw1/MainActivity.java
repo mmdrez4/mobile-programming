@@ -1,11 +1,16 @@
 package ir.madeinlobb.hw1;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -36,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private Button refreshButton;
     private int mProgressStatus = 0;
     ProgressBar progressBar;
+    LinearLayout mainLayout;
     ImageButton imageButton;
     ScrollView scrollView;
     LinearLayout coinsLayout;
@@ -63,11 +69,18 @@ public class MainActivity extends AppCompatActivity {
 
         imageButton = findViewById(R.id.coin_image);
 
+        mainLayout = findViewById(R.id.main_layout);
+        scrollView = findViewById(R.id.scroll_view);
+
+        coinsLayout = findViewById(R.id.coin_layouts);
+
 //        circularProgressButton = (CircularProgressButton)findViewById(R.id.refresh);
         imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 startActivity(new Intent(MainActivity.this, SecondActivity.class));
+
             }
         });
 
@@ -75,9 +88,6 @@ public class MainActivity extends AppCompatActivity {
 
         refreshButton = findViewById(R.id.refresh);
 
-        scrollView = findViewById(R.id.scroll_view);
-
-        coinsLayout = findViewById(R.id.coin_layouts);
 
         addCoins = findViewById(R.id.add_coin);
 
@@ -150,8 +160,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getWebService() {
+        final boolean[] firstTime = {true};
         final TextView coinName = findViewById(R.id.coin_name);
         final TextView coinPrice = findViewById(R.id.coin_price);
+        final TextView hc = findViewById(R.id.hour_changes);
+        final TextView dc = findViewById(R.id.day_changes);
+        final TextView wc = findViewById(R.id.week_changes);
         //                ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor();
         Thread thread = new Thread() {
             @Override
@@ -159,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
                 client = new OkHttpClient().newBuilder()
                         .build();
                 Request request = new Request.Builder()
-                        .url("https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=1&limit=1&aux=platform&cryptocurrency_type=coins")
+                        .url("https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=1&limit=10&aux=platform&cryptocurrency_type=coins")
                         .method("GET", null)
                         .addHeader("X-CMC_PRO_API_KEY", "32d8965f-ed31-4925-975b-da24cf243138")
                         .addHeader("Cookie", "__cfduid=d27e1c676eafe6c7134bd57d707fcae1c1615039668")
@@ -172,23 +186,52 @@ public class MainActivity extends AppCompatActivity {
 
                     JSONObject object2;
                     for (int i = 0; i < Jarray.length(); i++) {
-                        LinearLayout linearLayout = new LinearLayout(MainActivity.this);
-                        scrollView.addView(linearLayout);
+
                         JSONObject object = Jarray.getJSONObject(i);
                         final String name = object.getString("name");
                         final String symbol = object.getString("symbol");
                         object2 = object.getJSONObject("quote").getJSONObject("USD");
                         final int price = object2.getInt("price");
-                        int changeHour = object2.getInt("percent_change_1h");
-                        int changeDay = object2.getInt("percent_change_24h");
-                        int changeWeek = object2.getInt("percent_change_7d");
+                        final int changeHour = object2.getInt("percent_change_1h");
+                        final int changeDay = object2.getInt("percent_change_24h");
+                        final int changeWeek = object2.getInt("percent_change_7d");
 
                         MainActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                coinName.setText(symbol + "|" + name);
-                                coinPrice.setText(price + "$");
+                                if (firstTime[0]) {
+//                                finalLinearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                                    coinName.setText(symbol + "|" + name);
+                                    coinPrice.setText(price + "$");
+                                    hc.setText("1h: " + changeHour + "%");
+                                    dc.setText("1d: " + changeDay + "%");
+                                    wc.setText("1w: " + changeWeek + "%");
+                                    firstTime[0] = false;
 
+                                } else {
+                                    LayoutInflater vi = (LayoutInflater) MainActivity.this
+                                            .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                    View v = vi.inflate(R.layout.activity_main, null);
+
+                                    final LinearLayout linearLayout = v.findViewById(R.id.coin_layouts);
+
+                                    if (linearLayout.getParent() != null) {
+                                        ((ViewGroup) linearLayout.getParent()).removeView(linearLayout); // <- fix
+                                    }
+                                    final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                                            LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+
+                                    params.gravity = Gravity.CENTER_VERTICAL;
+                                    mainLayout.setOrientation(LinearLayout.VERTICAL);
+
+                                    ((TextView) linearLayout.findViewById(R.id.coin_name)).setText(symbol + "|" + name);
+                                    ((TextView) linearLayout.findViewById(R.id.coin_price)).setText(price + "$");
+                                    ((TextView) linearLayout.findViewById(R.id.hour_changes)).setText("1h: " + changeHour + "%");
+                                    ((TextView) linearLayout.findViewById(R.id.day_changes)).setText("1d: " + changeDay + "%");
+                                    ((TextView) linearLayout.findViewById(R.id.week_changes)).setText("1w: " + changeWeek + "%");
+                                    mainLayout.addView(linearLayout, params);
+
+                                }
                             }
                         });
 
@@ -219,7 +262,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()){
+                if (response.isSuccessful()) {
                     String jsonData = response.body().string();
                     JSONObject Jobject = null;
                     try {
