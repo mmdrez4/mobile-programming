@@ -3,6 +3,8 @@ package ir.madeinlobb.hw1;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.Image;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -13,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
@@ -20,6 +23,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
@@ -179,23 +183,11 @@ public class MainActivity extends AppCompatActivity {
                         .addHeader("Cookie", "__cfduid=d27e1c676eafe6c7134bd57d707fcae1c1615039668")
                         .build();
 
-//                String imageUrl = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/info?id=" + id + "&aux=logo";
-//                Request requestForImage = new Request.Builder()
-//                        .url(imageUrl)
-//                        .addHeader("X-CMC_PRO_API_KEY", "32d8965f-ed31-4925-975b-da24cf243138")
-//                        .addHeader("Cookie", "__cfduid=d27e1c676eafe6c7134bd57d707fcae1c1615039668")
-//                        .build();
-
                 try {
                     Response response = client.newCall(request).execute();
                     String jsonData = response.body().string();
                     JSONObject Jobject = new JSONObject(jsonData);
                     JSONArray Jarray = Jobject.getJSONArray("data");
-
-//                    Response responseForImage = client.newCall(requestForImage).execute();
-//                    Jobject = new JSONObject(response.body().string());
-//                    Jarray = Jobject.getJSONArray("data");
-
 
                     JSONObject object2;
                     for (int i = 0; i < Jarray.length(); i++) {
@@ -209,18 +201,20 @@ public class MainActivity extends AppCompatActivity {
                         final int changeHour = object2.getInt("percent_change_1h");
                         final int changeDay = object2.getInt("percent_change_24h");
                         final int changeWeek = object2.getInt("percent_change_7d");
-
+                        final String logo = "https://s2.coinmarketcap.com/static/img/coins/64x64/" + id + ".png";
 
                         MainActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 if (firstTime[0]) {
-//                                finalLinearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
                                     coinName.setText(symbol + "|" + name);
                                     coinPrice.setText(price + "$");
                                     hc.setText("1h: " + changeHour + "%");
                                     dc.setText("1d: " + changeDay + "%");
                                     wc.setText("1w: " + changeWeek + "%");
+                                    Glide.with(MainActivity.this)
+                                            .load(logo)
+                                            .into(imageButton);
                                     firstTime[0] = false;
 
                                 } else {
@@ -244,6 +238,9 @@ public class MainActivity extends AppCompatActivity {
                                     ((TextView) linearLayout.findViewById(R.id.hour_changes)).setText("1h: " + changeHour + "%");
                                     ((TextView) linearLayout.findViewById(R.id.day_changes)).setText("1d: " + changeDay + "%");
                                     ((TextView) linearLayout.findViewById(R.id.week_changes)).setText("1w: " + changeWeek + "%");
+                                    Glide.with(MainActivity.this)
+                                            .load(logo)
+                                            .into(((ImageButton) linearLayout.findViewById(R.id.coin_image)));
                                     mainLayout.addView(linearLayout, params);
 
                                 }
