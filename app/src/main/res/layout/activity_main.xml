@@ -82,9 +82,12 @@
 
             <LinearLayout
                 android:id="@+id/coin_layouts"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:visibility="invisible">
 
                 <ImageButton
                     android:id="@+id/coin_image"
@@ -101,20 +104,22 @@
                         android:id="@+id/coin_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="150dp"
+                        android:layout_marginStart="96dp"
+                        android:layout_marginLeft="96dp"
                         android:text="BTC | Bitcoin"
                         android:textSize="20sp"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintStart_toStartOf="@+id/coin_image"
+                        tools:ignore="MissingConstraints,NotSibling"
+                        tools:layout_editor_absoluteY="0dp" />
 
                     <TextView
                         android:id="@+id/coin_price"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="200dp"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginLeft="220dp"
+                        android:layout_marginTop="3dp"
                         android:gravity="end"
-                        android:text="100$"
+                        android:text="100 $"
                         app:layout_constraintLeft_toLeftOf="@+id/coin_name"
                         app:layout_constraintTop_toTopOf="parent" />
 
@@ -123,7 +128,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="56dp"
-                        android:layout_marginRight="232dp"
+                        android:layout_marginRight="268dp"
                         android:text="1h: 0%"
                         app:layout_constraintRight_toRightOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -142,8 +147,8 @@
                         android:id="@+id/week_changes"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="48dp"
-                        android:layout_marginRight="28dp"
+                        android:layout_marginTop="56dp"
+                        android:layout_marginRight="44dp"
                         android:text="7D: 2%"
                         app:layout_constraintRight_toRightOf="parent"
                         app:layout_constraintTop_toTopOf="@+id/coin_price" />
@@ -159,6 +164,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="631dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="5dp"
         android:gravity="center|bottom"
         android:orientation="horizontal">
 
@@ -166,16 +173,15 @@
         <RelativeLayout
             android:id="@+id/footer"
             android:layout_width="fill_parent"
-            android:layout_height="100dp"
-            android:background="#DCDCDC">
+            android:layout_height="100dp">
 
             <Button
                 android:id="@+id/refresh"
                 android:layout_width="197dp"
                 android:layout_height="72dp"
                 android:layout_centerVertical="true"
-                android:background="#90EE90"
-                android:text="refresh" />
+                android:text="refresh"
+                android:textColor="#008000" />
 
             <Button
                 android:id="@+id/add_coin"
@@ -186,8 +192,8 @@
                 android:layout_marginLeft="20dp"
                 android:layout_toEndOf="@+id/refresh"
                 android:layout_toRightOf="@+id/refresh"
-                android:background="#90EE90"
-                android:text="add coins" />
+                android:text="add coins"
+                android:textColor="#008000" />
 
         </RelativeLayout>
     </LinearLayout>

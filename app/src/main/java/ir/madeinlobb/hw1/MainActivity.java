@@ -2,9 +2,6 @@ package ir.madeinlobb.hw1;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.media.Image;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -15,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
@@ -39,6 +35,9 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
+
+    static int start = 1;
+    final static int end = 0;
 
     private Button openSecondActivity;
     //    CircularProgressButton circularProgressButton;
@@ -174,10 +173,12 @@ public class MainActivity extends AppCompatActivity {
         Thread thread = new Thread() {
             @Override
             public void run() {
+                int end = start + 9;
+                String url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=" + start + "&limit=" + end + "&aux=platform&cryptocurrency_type=coins";
                 client = new OkHttpClient().newBuilder()
                         .build();
                 Request request = new Request.Builder()
-                        .url("https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=1&limit=10&aux=platform&cryptocurrency_type=coins")
+                        .url(url)
                         .method("GET", null)
                         .addHeader("X-CMC_PRO_API_KEY", "32d8965f-ed31-4925-975b-da24cf243138")
                         .addHeader("Cookie", "__cfduid=d27e1c676eafe6c7134bd57d707fcae1c1615039668")
@@ -212,6 +213,7 @@ public class MainActivity extends AppCompatActivity {
                                     hc.setText("1h: " + changeHour + "%");
                                     dc.setText("1d: " + changeDay + "%");
                                     wc.setText("1w: " + changeWeek + "%");
+                                    coinsLayout.setVisibility(View.VISIBLE);
                                     Glide.with(MainActivity.this)
                                             .load(logo)
                                             .into(imageButton);
@@ -230,17 +232,20 @@ public class MainActivity extends AppCompatActivity {
                                     final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                                             LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 
+                                    params.setMargins(0, 10, 0, 10);
+
                                     params.gravity = Gravity.CENTER_VERTICAL;
                                     mainLayout.setOrientation(LinearLayout.VERTICAL);
 
-                                    ((TextView) linearLayout.findViewById(R.id.coin_name)).setText(symbol + "|" + name);
-                                    ((TextView) linearLayout.findViewById(R.id.coin_price)).setText(price + "$");
+                                    ((TextView) linearLayout.findViewById(R.id.coin_name)).setText(symbol + " | " + name);
+                                    ((TextView) linearLayout.findViewById(R.id.coin_price)).setText(price + " $");
                                     ((TextView) linearLayout.findViewById(R.id.hour_changes)).setText("1h: " + changeHour + "%");
                                     ((TextView) linearLayout.findViewById(R.id.day_changes)).setText("1d: " + changeDay + "%");
                                     ((TextView) linearLayout.findViewById(R.id.week_changes)).setText("1w: " + changeWeek + "%");
                                     Glide.with(MainActivity.this)
                                             .load(logo)
                                             .into(((ImageButton) linearLayout.findViewById(R.id.coin_image)));
+                                    linearLayout.setVisibility(View.VISIBLE);
                                     mainLayout.addView(linearLayout, params);
 
                                 }
@@ -253,8 +258,12 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
+
         };
         thread.start();
+        if (!thread.isAlive()) {
+            start += 10;
+        }
     }
 
     private void getWebService2() {
