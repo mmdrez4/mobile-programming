@@ -178,11 +178,24 @@ public class MainActivity extends AppCompatActivity {
                         .addHeader("X-CMC_PRO_API_KEY", "32d8965f-ed31-4925-975b-da24cf243138")
                         .addHeader("Cookie", "__cfduid=d27e1c676eafe6c7134bd57d707fcae1c1615039668")
                         .build();
+
+//                String imageUrl = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/info?id=" + id + "&aux=logo";
+//                Request requestForImage = new Request.Builder()
+//                        .url(imageUrl)
+//                        .addHeader("X-CMC_PRO_API_KEY", "32d8965f-ed31-4925-975b-da24cf243138")
+//                        .addHeader("Cookie", "__cfduid=d27e1c676eafe6c7134bd57d707fcae1c1615039668")
+//                        .build();
+
                 try {
                     Response response = client.newCall(request).execute();
                     String jsonData = response.body().string();
                     JSONObject Jobject = new JSONObject(jsonData);
                     JSONArray Jarray = Jobject.getJSONArray("data");
+
+//                    Response responseForImage = client.newCall(requestForImage).execute();
+//                    Jobject = new JSONObject(response.body().string());
+//                    Jarray = Jobject.getJSONArray("data");
+
 
                     JSONObject object2;
                     for (int i = 0; i < Jarray.length(); i++) {
@@ -190,11 +203,13 @@ public class MainActivity extends AppCompatActivity {
                         JSONObject object = Jarray.getJSONObject(i);
                         final String name = object.getString("name");
                         final String symbol = object.getString("symbol");
+                        int id = object.getInt("id");
                         object2 = object.getJSONObject("quote").getJSONObject("USD");
                         final int price = object2.getInt("price");
                         final int changeHour = object2.getInt("percent_change_1h");
                         final int changeDay = object2.getInt("percent_change_24h");
                         final int changeWeek = object2.getInt("percent_change_7d");
+
 
                         MainActivity.this.runOnUiThread(new Runnable() {
                             @Override
