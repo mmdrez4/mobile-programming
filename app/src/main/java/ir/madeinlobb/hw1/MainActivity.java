@@ -2,6 +2,7 @@ package ir.madeinlobb.hw1;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -36,8 +37,7 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    static int start = 1;
-    final static int end = 0;
+    static int start = -9;
 
     private Button openSecondActivity;
     //    CircularProgressButton circularProgressButton;
@@ -45,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
     private int mProgressStatus = 0;
     ProgressBar progressBar;
     LinearLayout mainLayout;
+    final boolean[] firstTime = {true};
+    LinearLayout barLayout;
     ImageButton imageButton;
     ScrollView scrollView;
     LinearLayout coinsLayout;
@@ -69,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         };
         handler.postDelayed(runnableCode, 2000);
  */
-
+        barLayout = findViewById(R.id.bar);
         imageButton = findViewById(R.id.coin_image);
 
         mainLayout = findViewById(R.id.main_layout);
@@ -81,9 +83,7 @@ public class MainActivity extends AppCompatActivity {
         imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 startActivity(new Intent(MainActivity.this, SecondActivity.class));
-
             }
         });
 
@@ -91,17 +91,22 @@ public class MainActivity extends AppCompatActivity {
 
         refreshButton = findViewById(R.id.refresh);
 
-
         addCoins = findViewById(R.id.add_coin);
 
         refreshButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mProgressStatus = 0;
+                mainLayout.removeAllViews();
+                mainLayout.addView(barLayout);
+                mainLayout.addView(coinsLayout);
+
                 progressBar.setVisibility(View.VISIBLE);
                 final Handler handler = new Handler();
-                new Thread(new Runnable() {
+                Thread thread = new Thread() {
                     @Override
                     public void run() {
+                        getWebService(1,2);
                         while (mProgressStatus < 100) {
                             mProgressStatus++;
                             android.os.SystemClock.sleep(50);
@@ -119,14 +124,15 @@ public class MainActivity extends AppCompatActivity {
                             }
                         });
                     }
-                }).start();
+                };
+                thread.start();
             }
         });
 
         addCoins.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getWebService();
+                getWebService(start, 1);
             }
         });
 
@@ -162,8 +168,8 @@ public class MainActivity extends AppCompatActivity {
 //        });
     }
 
-    private void getWebService() {
-        final boolean[] firstTime = {true};
+    private void getWebService(final int startPoint, final int status) {
+        start += 10;
         final TextView coinName = findViewById(R.id.coin_name);
         final TextView coinPrice = findViewById(R.id.coin_price);
         final TextView hc = findViewById(R.id.hour_changes);
@@ -174,7 +180,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 int end = start + 9;
-                String url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=" + start + "&limit=" + end + "&aux=platform&cryptocurrency_type=coins";
+                Log.d("START", String.valueOf(start));
+                String url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=" + startPoint + "&limit=" + end + "&aux=platform&cryptocurrency_type=coins";
                 client = new OkHttpClient().newBuilder()
                         .build();
                 Request request = new Request.Builder()
@@ -208,6 +215,9 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 if (firstTime[0]) {
+                                    if (status == 2){
+                                        coinsLayout.setBackgroundColor(Color.GREEN);
+                                    }
                                     coinName.setText(symbol + "|" + name);
                                     coinPrice.setText(price + "$");
                                     hc.setText("1h: " + changeHour + "%");
@@ -245,7 +255,16 @@ public class MainActivity extends AppCompatActivity {
                                     Glide.with(MainActivity.this)
                                             .load(logo)
                                             .into(((ImageButton) linearLayout.findViewById(R.id.coin_image)));
+                                    ((ImageButton) linearLayout.findViewById(R.id.coin_image)).setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            startActivity(new Intent(MainActivity.this, SecondActivity.class));
+                                        }
+                                    });
                                     linearLayout.setVisibility(View.VISIBLE);
+                                    if (status == 2){
+                                        linearLayout.setBackgroundColor(Color.GREEN);
+                                    }
                                     mainLayout.addView(linearLayout, params);
 
                                 }
@@ -258,12 +277,8 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-
         };
         thread.start();
-        if (!thread.isAlive()) {
-            start += 10;
-        }
     }
 
     private void getWebService2() {
