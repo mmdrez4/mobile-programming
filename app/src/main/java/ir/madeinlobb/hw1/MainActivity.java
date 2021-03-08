@@ -28,6 +28,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -37,7 +41,10 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    static int start = -9;
+    static int start = 1;
+
+    private static int cores = Runtime.getRuntime().availableProcessors();
+    private static ExecutorService executorService = Executors.newFixedThreadPool(cores + 1);
 
     private Button openSecondActivity;
     //    CircularProgressButton circularProgressButton;
@@ -106,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                 Thread thread = new Thread() {
                     @Override
                     public void run() {
-                        getWebService(1,2);
+                        getWebService(2);
                         while (mProgressStatus < 100) {
                             mProgressStatus++;
                             android.os.SystemClock.sleep(50);
@@ -132,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
         addCoins.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getWebService(start, 1);
+                getWebService(1);
             }
         });
 
@@ -168,20 +175,39 @@ public class MainActivity extends AppCompatActivity {
 //        });
     }
 
-    private void getWebService(final int startPoint, final int status) {
-        start += 10;
+    public void stop(){
+        executorService.shutdown();
+    }
+
+    private void getWebService(final int status) {
+
         final TextView coinName = findViewById(R.id.coin_name);
         final TextView coinPrice = findViewById(R.id.coin_price);
         final TextView hc = findViewById(R.id.hour_changes);
         final TextView dc = findViewById(R.id.day_changes);
         final TextView wc = findViewById(R.id.week_changes);
-        //                ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor();
+
+//        ThreadPoolExecutor threadPoolExecutor = new Executors.();
+//        executorService.execute((new Runnable() {
+//            @Override
+//            public void run() {
+//
+//            }
+//        }));
+
+//        executorService.execute()
         Thread thread = new Thread() {
             @Override
             public void run() {
-                int end = start + 9;
-                Log.d("START", String.valueOf(start));
-                String url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=" + startPoint + "&limit=" + end + "&aux=platform&cryptocurrency_type=coins";
+                int end = start + 4;
+                String url;
+                if (status == 1) {
+                    Log.d("START1", String.valueOf(start));
+                    url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=" + start + "&limit=" + end + "&aux=platform&cryptocurrency_type=coins";
+                    Log.d("START2", String.valueOf(start));
+                } else {
+                    url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=" + 1 + "&limit=" + end + "&aux=platform&cryptocurrency_type=coins";
+                }
                 client = new OkHttpClient().newBuilder()
                         .build();
                 Request request = new Request.Builder()
@@ -211,11 +237,15 @@ public class MainActivity extends AppCompatActivity {
                         final int changeWeek = object2.getInt("percent_change_7d");
                         final String logo = "https://s2.coinmarketcap.com/static/img/coins/64x64/" + id + ".png";
 
+                        if (status == 2) {
+                            firstTime[0] = true;
+                        }
+
                         MainActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 if (firstTime[0]) {
-                                    if (status == 2){
+                                    if (status == 2) {
                                         coinsLayout.setBackgroundColor(Color.GREEN);
                                     }
                                     coinName.setText(symbol + "|" + name);
@@ -262,7 +292,7 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                     });
                                     linearLayout.setVisibility(View.VISIBLE);
-                                    if (status == 2){
+                                    if (status == 2) {
                                         linearLayout.setBackgroundColor(Color.GREEN);
                                     }
                                     mainLayout.addView(linearLayout, params);
@@ -279,6 +309,9 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         thread.start();
+        if (status == 1 && !thread.isAlive()) {
+            start += 5;
+        }
     }
 
     private void getWebService2() {
@@ -318,12 +351,6 @@ public class MainActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-//                    MainActivity.this.runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            coinName.setText();
-//                        }
-//                    });
                 }
             }
         });
