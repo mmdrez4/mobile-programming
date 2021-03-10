@@ -243,6 +243,9 @@ public class MainActivity extends AppCompatActivity {
                         final int changeWeek = object2.getInt("percent_change_7d");
                         final String logo = "https://s2.coinmarketcap.com/static/img/coins/64x64/" + id + ".png";
 
+                        String data = logo + "-" + name + "-" + symbol + "-" + price + "-" + changeHour + "-" + changeDay + "-" + changeWeek;
+                        writeToFile(data, MainActivity.this);
+
                         if (status == 2) {
                             firstTime[0] = true;
                         }

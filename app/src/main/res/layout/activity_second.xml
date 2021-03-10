@@ -3,53 +3,56 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="this is second page"
-        />
+        android:layout_height="79dp"
+        android:background="#EC0303"
+        android:orientation="vertical">
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="631dp"
-        android:layout_weight="1"
-        android:orientation="horizontal">
+        android:layout_height="100dp"
+        android:background="#4CAF50"
+        android:orientation="vertical" />
 
-        <Button
-            android:id="@+id/this_week_candles"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:layout_weight="1"
-            android:background="#7FFFD4"
-            android:text="week" />
-
-        <Button
-            android:id="@+id/this_month_candles"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:layout_weight="1"
-            android:background="#7FFFD4"
-            android:text="month" />
-
-    </LinearLayout>
-
-    <FrameLayout
-        android:id="@+id/top_fragment_container"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_weight="1"
-        android:layout_height="0dp">
-    </FrameLayout>
+        android:layout_height="100dp"
+        android:background="#4CAF50"
+        android:orientation="vertical" />
 
-    <FrameLayout
-        android:id="@+id/bottom_fragment_container"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_weight="1"
-        android:layout_height="0dp">
-    </FrameLayout>
+        android:layout_height="100dp"
+        android:background="#4CAF50"
+        android:orientation="vertical" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="#4CAF50"
+        android:orientation="vertical" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="#4CAF50"
+        android:orientation="vertical" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="#4CAF50"
+        android:orientation="vertical" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="#4CAF50"
+        android:orientation="vertical" />
+
+
 
 
 </LinearLayout>
