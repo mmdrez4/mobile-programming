@@ -367,7 +367,7 @@ public class MainActivity extends AppCompatActivity {
                         ((TextView) linearLayout.findViewById(R.id.day_changes)).setText("1d: " + coinInfo[5] + "%");
                         ((TextView) linearLayout.findViewById(R.id.week_changes)).setText("1w: " + coinInfo[6] + "%");
                         Glide.with(MainActivity.this)
-                                .load(coinInfo[7])
+                                .load(coinInfo[0])
                                 .into(((ImageButton) linearLayout.findViewById(R.id.coin_image)));
                         ((ImageButton) linearLayout.findViewById(R.id.coin_image)).setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -389,7 +389,6 @@ public class MainActivity extends AppCompatActivity {
     private static void setSymbol(String symbol){
         MainActivity.symbol = symbol;
     }
-
 
     @Override
     protected void onDestroy() {
