@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
 
                 progressBar.setVisibility(View.VISIBLE);
                 final Handler handler = new Handler();
-                Thread thread = new Thread() {
+                executor.execute(new Runnable() {
                     @Override
                     public void run() {
                         getWebService(2);
@@ -110,8 +110,8 @@ public class MainActivity extends AppCompatActivity {
                             }
                         });
                     }
-                };
-                thread.start();
+                });
+
             }
         });
 

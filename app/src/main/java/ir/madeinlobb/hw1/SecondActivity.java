@@ -180,7 +180,6 @@ public class SecondActivity extends AppCompatActivity {
                                         linearLayout.setBackgroundColor(Color.GREEN);
                                     }
                                     mainLayout.addView(linearLayout, params);
-
                                 }
                             }
                         });
