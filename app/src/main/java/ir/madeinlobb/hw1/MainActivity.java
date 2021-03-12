@@ -65,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout coinsLayout;
     TextView textView;
     HandlerThread handlerThread = new HandlerThread("handlerThread");
-    Gson gson;
     Button addCoins;
     OkHttpClient client;
 
@@ -74,16 +73,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-/*
-        Handler handler = new Handler();
-        private Runnable runnableCode = new Runnable() {
-            @Override
-            public void run() {
-                //
-            }
-        };
-        handler.postDelayed(runnableCode, 2000);
- */
+
         barLayout = findViewById(R.id.bar);
         imageButton = findViewById(R.id.coin_image);
 
@@ -279,52 +269,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         start += 5;
-
-//        if (status == 1 && !thread.isAlive()) {
-//            start += 5;
-//        }
-    }
-
-    private void getWebService2() {
-        final TextView coinName = findViewById(R.id.coin_name);
-        TextView coinPrice = findViewById(R.id.coin_price);
-
-        OkHttpClient client = new OkHttpClient();
-        String url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=1&limit=2&aux=platform&cryptocurrency_type=coins";
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    String jsonData = response.body().string();
-                    JSONObject Jobject = null;
-                    try {
-                        Jobject = new JSONObject(jsonData);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    try {
-                        JSONArray Jarray = Jobject.getJSONArray("data");
-                        for (int i = 0; i < Jarray.length(); i++) {
-                            JSONObject object = Jarray.getJSONObject(i);
-                            String name = object.getString("name");
-                            String symbol = object.getString("symbol");
-                            Log.d("TAG", name + " : " + symbol);
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-            }
-        });
 
     }
 

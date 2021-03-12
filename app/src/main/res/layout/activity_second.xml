@@ -54,7 +54,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
                 android:orientation="horizontal"
-                >
+                android:visibility="invisible">
 
                 <Button
                     android:text="Day1"
@@ -135,22 +135,10 @@
             android:layout_height="100dp">
 
             <Button
-                android:id="@+id/refresh"
-                android:layout_width="197dp"
-                android:layout_height="72dp"
-                android:layout_centerVertical="true"
-                android:text="refresh"
-                android:textColor="#008000" />
-
-            <Button
                 android:id="@+id/back"
-                android:layout_width="181dp"
-                android:layout_height="72dp"
+                android:layout_width="match_parent"
+                android:layout_height="67dp"
                 android:layout_centerVertical="true"
-                android:layout_marginStart="10dp"
-                android:layout_marginLeft="20dp"
-                android:layout_toEndOf="@+id/refresh"
-                android:layout_toRightOf="@+id/refresh"
                 android:text="back"
                 android:textColor="#008000" />
 
