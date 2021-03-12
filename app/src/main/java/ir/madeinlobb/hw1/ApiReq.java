@@ -5,103 +5,86 @@ import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Objects;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static android.content.ContentValues.TAG;
-
 public class ApiReq {
-
-    public enum Range {
-        weekly,
-        oneMonth,
-    }
 
     public static String startTime;
     public static String endTime;
     public static String openTime;
     public static String closeTime;
-    public static String openPrice;
-    public static String closePrice;
-    public static String highPrice;
-    public static String lowPrice;
+    private static ArrayList<Double> highPrices = new ArrayList();
+    private static ArrayList<Double> lowPrices = new ArrayList();
+    private static ArrayList<Double> openPrices = new ArrayList();
+    private static ArrayList<Double> closePrices = new ArrayList();
     public static String tradedVolume;
     public static String tradesCount;
     static Log log;
+    public static ArrayList<ArrayList> ret = new ArrayList<>();
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
-    public static void getCandles(final String symbol, final Range range) throws IOException {
+    public static ArrayList getCandles(final String symbol, final int range) throws IOException {
 
         Thread thread = new Thread() {
-
             @Override
             public void run() {
                 OkHttpClient okHttpClient = new OkHttpClient();
-                String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-                String miniUrl;
-                final String description;
-
-                switch (range) {
-
-                    case weekly:
-                        miniUrl = "period_id=1DAY".concat("&time_start=2021-03-10").concat("&time_end=".concat(date).concat("&limit=7"));
-                        description = "Daily candles from now";
-                        break;
-
-                    case oneMonth:
-                        miniUrl = "period_id=1DAY".concat("&time_start=2021-03-10T00:00:00").concat("&time_end=".concat(date).concat("&limit=30"));
-                        description = "Daily candles from now";
-                        break;
-
-                    default:
-                        miniUrl = "";
-                        description = "";
-
-                }
-
-                HttpUrl.Builder urlBuilder = HttpUrl.parse("https://rest.coinapi.io/v1/ohlcv/".concat(symbol).concat("/history?".concat(miniUrl)))
+                String miniUrl = "period_id=1DAY".concat("&limit=").concat(String.valueOf(range));
+                HttpUrl.Builder urlBuilder = HttpUrl.parse("https://rest.coinapi.io/v1/ohlcv/".concat(symbol).concat("/USD/latest?".concat(miniUrl)))
                         .newBuilder();
 
                 String url = urlBuilder.build().toString();
 
-                Request request = new Request.Builder()
-                        .url(url)
-                        .method("GET", null)
-                        .addHeader("X-CoinAPI_key", "7A140A0C-551B-4652-AF33-CA5DF0482FAC")
-                        .build();
+                final Request request = new Request.Builder().url(url).addHeader("X-CoinPI-Key", "E5CB2574-A0D2-4A8F-96A9-B0FF6FF42162").build();
 
+                okHttpClient.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        Log.e("network", Objects.requireNonNull(e.getMessage()));
+                    }
 
-                try {
-                    Response response = okHttpClient.newCall(request).execute();
-                    JSONObject jsonData = new JSONObject(response.body().string());
-                    System.out.println("youuuuuuseeffffff");
-                    System.out.println(jsonData.toString());
-                    log.d("TAG", response.body().toString());
-                    startTime = jsonData.getString("time_period_start");
-                    endTime = jsonData.getString("time_period_end");
-                    openTime = jsonData.getString("time_open");
-                    closeTime = jsonData.getString("time_close");
-                    openPrice = jsonData.getString("price_open");
-                    closePrice = jsonData.getString("price_close");
-                    highPrice = jsonData.getString("price_high");
-                    lowPrice = jsonData.getString("price_low");
-                    tradedVolume = jsonData.getString("volume_traded");
-                    tradesCount = jsonData.getString("trades_count");
-                } catch (
-                        JSONException | IOException e) {
-                    e.printStackTrace();
-                }
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if (!response.isSuccessful()) {
+                            Log.e("network", response.body().string());
+                        } else {
+                            String body = response.body().string();
+                            Log.d("response", body);
+                            try {
+                                JSONArray data = new JSONArray(body);
+                                for (int i = 0; i < range; i++) {
+                                    JSONObject object = (JSONObject) data.get(i);
+                                    highPrices.set(i, object.getDouble("price_high"));
+                                    lowPrices.set(i, object.getDouble("price_low"));
+                                    closePrices.set(i, object.getDouble("price_close"));
+                                    openPrices.set(i, object.getDouble("price_open"));
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            ret.set(0, highPrices);
+                            ret.set(1, lowPrices);
+                            ret.set(2, openPrices);
+                            ret.set(3, closePrices);
+                        }
+                    }
+                });
             }
         };
         thread.start();
+        return ret;
     }
 }

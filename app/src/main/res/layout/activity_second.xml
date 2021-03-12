@@ -1,70 +1,161 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <ScrollView
+        android:id="@+id/scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/main_linear_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            tools:context=".MainActivity">
+
+            <LinearLayout
+                android:id="@+id/bar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <Button
+                    android:id="@+id/week_button"
+                    android:layout_width="198dp"
+                    android:layout_height="60dp"
+                    android:layout_centerVertical="true"
+                    android:background="#00FFFF"
+                    android:text="week"
+                    android:textColor="#000000" />
+
+                <Button
+                    android:id="@+id/month_button"
+                    android:layout_width="181dp"
+                    android:layout_height="60dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginLeft="20dp"
+                    android:background="#00FFFF"
+                    android:layout_toEndOf="@+id/refresh"
+                    android:layout_toRightOf="@+id/refresh"
+                    android:text="month"
+                    android:textColor="#000000" />
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/status_layout"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:orientation="horizontal"
+                android:visibility="invisible">
+
+                <Button
+                    android:text="Day1"
+                    android:id="@+id/day_num"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp" />
+
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="310dp"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:id="@+id/open_price"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="156dp"
+                        android:layout_marginLeft="156dp"
+                        android:text="BTC coin "
+                        android:textSize="20sp"
+                        app:layout_constraintStart_toStartOf="@+id/coin_image"
+                        tools:ignore="MissingConstraints,NotSibling"
+                        tools:layout_editor_absoluteY="0dp" />
+
+
+                    <TextView
+                        android:id="@+id/low_price"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="56dp"
+                        android:layout_marginRight="260dp"
+                        android:text="1h: 0%"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/high_price"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="130dp"
+                        android:layout_marginTop="56dp"
+                        android:layout_marginEnd="44dp"
+                        android:layout_marginRight="44dp"
+                        android:text="7D: 2%"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintLeft_toLeftOf="@+id/hour_changes"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/close_price"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="106dp"
+                        android:layout_marginRight="24dp"
+                        android:text="7D: 2%"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/coin_price" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+    </ScrollView>
 
     <LinearLayout
-        android:id="@+id/T023"
         android:layout_width="match_parent"
-        android:layout_height="79dp"
-        android:background="#EC0303"
-        android:orientation="vertical"
-        >
-        <TextView
-            android:id="@+id/T022"
-            android:textColor="#151414"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_marginStart="196dp"
-            android:layout_marginLeft="96dp"
-            android:textSize="20sp" />
+        android:layout_height="631dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="5dp"
+        android:gravity="center|bottom"
+        android:orientation="horizontal">
+
+
+        <RelativeLayout
+            android:id="@+id/footer"
+            android:layout_width="fill_parent"
+            android:layout_height="100dp">
+
+            <Button
+                android:id="@+id/refresh"
+                android:layout_width="197dp"
+                android:layout_height="72dp"
+                android:layout_centerVertical="true"
+                android:text="refresh"
+                android:textColor="#008000" />
+
+            <Button
+                android:id="@+id/back"
+                android:layout_width="181dp"
+                android:layout_height="72dp"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="20dp"
+                android:layout_toEndOf="@+id/refresh"
+                android:layout_toRightOf="@+id/refresh"
+                android:text="back"
+                android:textColor="#008000" />
+
+        </RelativeLayout>
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:background="#4CAF50"
-        android:orientation="vertical" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:background="#4CAF50"
-        android:orientation="vertical" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:background="#4CAF50"
-        android:orientation="vertical" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:background="#03A9F4"
-        android:orientation="vertical" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:background="#E91E63"
-        android:orientation="vertical" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:background="#4CAF50"
-        android:orientation="vertical" />
-
-    <LinearLayout
-        android:id="@+id/T021"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:background="#B13F65"
-        android:orientation="vertical" />
-
-
-
-
-
-</LinearLayout>
+</RelativeLayout>
