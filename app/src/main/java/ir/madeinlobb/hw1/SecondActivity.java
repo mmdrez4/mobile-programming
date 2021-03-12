@@ -108,14 +108,18 @@ public class SecondActivity extends AppCompatActivity {
                         .newBuilder();
 
                 String url = urlBuilder.build().toString();
+                Log.d("SHITURL: ", url);
+                final Request request = new Request.Builder()
+                        .url(url)
+                        .method("GET", null)
+                        .addHeader("X-CoinAPI-Key", "E5CB2574-A0D2-4A8F-96A9-B0FF6FF42162").build();
 
-                final Request request = new Request.Builder().url(url).method("GET", null).addHeader("X-CoinPI-Key", "E5CB2574-A0D2-4A8F-96A9-B0FF6FF42162").build();
 
                 try {
                     Response response = client.newCall(request).execute();
                     String jsonData = response.body().string();
                     Log.d("SHIT: ", jsonData);
-                    JSONArray Jarray =  new JSONArray(jsonData);
+                    JSONArray Jarray = new JSONArray(jsonData);
 
                     for (int i = 0; i < limit; i++) {
                         JSONObject object = (JSONObject) Jarray.get(i);
@@ -128,6 +132,8 @@ public class SecondActivity extends AppCompatActivity {
                         final int low = object.getInt("price_low");
                         final int close = object.getInt("price_close");
                         final int open = object.getInt("price_open");
+
+                        Log.d("SHIT: ", String.valueOf(high));
 
 //                        final String highPrice = object.getString("name");
 //                        final String lowPrice = object.getString("symbol");
@@ -144,10 +150,10 @@ public class SecondActivity extends AppCompatActivity {
                             public void run() {
                                 if (firstTime[0]) {
                                     dayNum.setText("DAY" + finalI);
-                                    openPrice.setText((int) open);
-                                    closePrice.setText((int) close);
-                                    lowPrice.setText((int) low);
-                                    highPrice.setText((int) high);
+                                    openPrice.setText("   Open Price: " + open);
+                                    closePrice.setText("Close Price: " + close);
+                                    lowPrice.setText("Low Price: " + low);
+                                    highPrice.setText("High Price: " + high);
                                     statusLayout.setVisibility(View.VISIBLE);
                                     firstTime[0] = false;
                                 } else {
@@ -169,10 +175,10 @@ public class SecondActivity extends AppCompatActivity {
                                     mainLayout.setOrientation(LinearLayout.VERTICAL);
 
                                     ((TextView) linearLayout.findViewById(R.id.day_num)).setText("DAY" + finalI);
-                                    ((TextView) linearLayout.findViewById(R.id.open_price)).setText((int) open);
-                                    ((TextView) linearLayout.findViewById(R.id.close_price)).setText((int) close);
-                                    ((TextView) linearLayout.findViewById(R.id.low_price)).setText((int) low);
-                                    ((TextView) linearLayout.findViewById(R.id.high_price)).setText((int) high);
+                                    ((TextView) linearLayout.findViewById(R.id.open_price)).setText("   Open Price: " + open);
+                                    ((TextView) linearLayout.findViewById(R.id.close_price)).setText("Close Price: " + close);
+                                    ((TextView) linearLayout.findViewById(R.id.low_price)).setText("Low Price: " + low);
+                                    ((TextView) linearLayout.findViewById(R.id.high_price)).setText("High Price: " + high);
 
                                     linearLayout.setVisibility(View.VISIBLE);
                                     if (status == 2) {
