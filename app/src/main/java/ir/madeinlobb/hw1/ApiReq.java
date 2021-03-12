@@ -53,12 +53,12 @@ public class ApiReq {
                 switch (range) {
 
                     case weekly:
-                        miniUrl = "period_id=1DAY".concat("&time_end=".concat(date).concat("&limit=7"));
+                        miniUrl = "period_id=1DAY".concat("&time_start=2021-03-10").concat("&time_end=".concat(date).concat("&limit=7"));
                         description = "Daily candles from now";
                         break;
 
                     case oneMonth:
-                        miniUrl = "period_id=1DAY".concat("&time_end=".concat(date).concat("&limit=30"));
+                        miniUrl = "period_id=1DAY".concat("&time_start=2021-03-10T00:00:00").concat("&time_end=".concat(date).concat("&limit=30"));
                         description = "Daily candles from now";
                         break;
 
@@ -68,7 +68,7 @@ public class ApiReq {
 
                 }
 
-                HttpUrl.Builder urlBuilder = HttpUrl.parse("https://rest.coinapi.io/v1/ohlcv/".concat(symbol).concat("/USD/history?".concat(miniUrl)))
+                HttpUrl.Builder urlBuilder = HttpUrl.parse("https://rest.coinapi.io/v1/ohlcv/".concat(symbol).concat("/history?".concat(miniUrl)))
                         .newBuilder();
 
                 String url = urlBuilder.build().toString();
@@ -76,14 +76,15 @@ public class ApiReq {
                 Request request = new Request.Builder()
                         .url(url)
                         .method("GET", null)
-                        .addHeader("X-CMC_PRO_API_KEY", "32d8965f-ed31-4925-975b-da24cf243138")
-                        .addHeader("Cookie", "__cfduid=d27e1c676eafe6c7134bd57d707fcae1c1615039668")
+                        .addHeader("X-CoinAPI_key", "7A140A0C-551B-4652-AF33-CA5DF0482FAC")
                         .build();
 
 
                 try {
                     Response response = okHttpClient.newCall(request).execute();
                     JSONObject jsonData = new JSONObject(response.body().string());
+                    System.out.println("youuuuuuseeffffff");
+                    System.out.println(jsonData.toString());
                     log.d("TAG", response.body().toString());
                     startTime = jsonData.getString("time_period_start");
                     endTime = jsonData.getString("time_period_end");

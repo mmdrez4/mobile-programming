@@ -4,10 +4,20 @@
     android:layout_height="match_parent">
 
     <LinearLayout
+        android:id="@+id/T023"
         android:layout_width="match_parent"
         android:layout_height="79dp"
         android:background="#EC0303"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        >
+        <TextView
+            android:id="@+id/T022"
+            android:textColor="#151414"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginStart="196dp"
+            android:layout_marginLeft="96dp"
+            android:textSize="20sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -31,7 +41,13 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:background="#4CAF50"
+        android:background="#03A9F4"
+        android:orientation="vertical" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="#E91E63"
         android:orientation="vertical" />
 
     <LinearLayout
@@ -41,16 +57,12 @@
         android:orientation="vertical" />
 
     <LinearLayout
+        android:id="@+id/T021"
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:background="#4CAF50"
+        android:background="#B13F65"
         android:orientation="vertical" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:background="#4CAF50"
-        android:orientation="vertical" />
 
 
 

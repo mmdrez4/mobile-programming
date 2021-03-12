@@ -297,6 +297,7 @@ public class MainActivity extends AppCompatActivity {
                                     ((ImageButton) linearLayout.findViewById(R.id.coin_image)).setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View view) {
+                                            System.out.println("somaye");
                                             startActivity(new Intent(MainActivity.this, SecondActivity.class));
                                         }
                                     });
