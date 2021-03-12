@@ -48,12 +48,12 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity {
 
     static int start = 1;
+    public static String symbol;
 
     private static int cores = Runtime.getRuntime().availableProcessors();
-    private static ExecutorService executorService = Executors.newFixedThreadPool(cores + 1);
+    private static ExecutorService executor = Executors.newFixedThreadPool(cores + 1);
 
     private Button openSecondActivity;
-    //    CircularProgressButton circularProgressButton;
     private Button refreshButton;
     private int mProgressStatus = 0;
     ProgressBar progressBar;
@@ -91,14 +91,6 @@ public class MainActivity extends AppCompatActivity {
         scrollView = findViewById(R.id.scroll_view);
 
         coinsLayout = findViewById(R.id.coin_layouts);
-
-//        circularProgressButton = (CircularProgressButton)findViewById(R.id.refresh);
-        imageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this, SecondActivity.class));
-            }
-        });
 
         progressBar = findViewById(R.id.progress_circular);
 
@@ -149,43 +141,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-//        CountDownTimer countDownTimer = new CountDownTimer(10000,1000) {
-//            @Override
-//            public void onTick(long remainingTime) {
-//                Log.d("TAG","countDownTimer" + remainingTime);
-//            }
-//
-//            @Override
-//            public void onFinish() {
-//                Log.d("TAG","countDownTimer onFinish");
-//            }
-//        };
-//        countDownTimer.start();
-//
-//        textView = findViewById(R.id.text);
-//        button = findViewById(R.id.buttonPanel);
-//        first = findViewById(R.id.myEditText);
-//
-//        Log.d("NUM",textView.getText().toString());
-//
-//        Toast toast = Toast.makeText(MainActivity.this,"ready",Toast.LENGTH_LONG);
-//        toast.show();
-//
-//        button.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                String name = first.getText().toString();
-//                textView.setText("salam" + name);
-//            }
-//        });
     }
 
     public void stop(){
-        executorService.shutdown();
+        executor.shutdown();
     }
 
-    private void getWebService(final int status) {
+    private synchronized void getWebService(final int status) {
 
         final TextView coinName = findViewById(R.id.coin_name);
         final TextView coinPrice = findViewById(R.id.coin_price);
@@ -193,16 +155,7 @@ public class MainActivity extends AppCompatActivity {
         final TextView dc = findViewById(R.id.day_changes);
         final TextView wc = findViewById(R.id.week_changes);
 
-//        ThreadPoolExecutor threadPoolExecutor = new Executors.();
-//        executorService.execute((new Runnable() {
-//            @Override
-//            public void run() {
-//
-//            }
-//        }));
-
-//        executorService.execute()
-        Thread thread = new Thread() {
+        executor.execute(new Runnable() {
             @Override
             public void run() {
                 int end = start + 4;
@@ -266,6 +219,13 @@ public class MainActivity extends AppCompatActivity {
                                     Glide.with(MainActivity.this)
                                             .load(logo)
                                             .into(imageButton);
+                                    imageButton.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            setSymbol(symbol);
+                                            startActivity(new Intent(MainActivity.this, SecondActivity.class));
+                                        }
+                                    });
                                     firstTime[0] = false;
 
                                 } else {
@@ -297,6 +257,7 @@ public class MainActivity extends AppCompatActivity {
                                     ((ImageButton) linearLayout.findViewById(R.id.coin_image)).setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View view) {
+                                            setSymbol(symbol);
                                             startActivity(new Intent(MainActivity.this, SecondActivity.class));
                                         }
                                     });
@@ -305,7 +266,6 @@ public class MainActivity extends AppCompatActivity {
                                         linearLayout.setBackgroundColor(Color.GREEN);
                                     }
                                     mainLayout.addView(linearLayout, params);
-
                                 }
                             }
                         });
@@ -316,11 +276,13 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-        };
-        thread.start();
-        if (status == 1 && !thread.isAlive()) {
-            start += 5;
-        }
+        });
+
+        start += 5;
+
+//        if (status == 1 && !thread.isAlive()) {
+//            start += 5;
+//        }
     }
 
     private void getWebService2() {
@@ -366,15 +328,20 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void writeToFile(String data,Context context) {
-        try {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("config.txt", Context.MODE_PRIVATE));
-            outputStreamWriter.write(data);
-            outputStreamWriter.close();
-        }
-        catch (IOException e) {
-            Log.e("Exception", "File write failed: " + e.toString());
-        }
+    private synchronized void writeToFile(final String data, final Context context) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("config.txt", Context.MODE_PRIVATE));
+                    outputStreamWriter.write(data);
+                    outputStreamWriter.close();
+                }
+                catch (IOException e) {
+                    Log.e("Exception", "File write failed: " + e.toString());
+                }
+            }
+        });
     }
 
     private String readFromFile(Context context) {
@@ -412,6 +379,10 @@ public class MainActivity extends AppCompatActivity {
     private void updateLinearLayout() {
 
 
+    }
+
+    private static void setSymbol(String symbol){
+        MainActivity.symbol = symbol;
     }
 
 
