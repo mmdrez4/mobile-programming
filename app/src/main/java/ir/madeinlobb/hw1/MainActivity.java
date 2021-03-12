@@ -21,26 +21,20 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
-import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
-import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -53,8 +47,6 @@ public class MainActivity extends AppCompatActivity {
     private static int cores = Runtime.getRuntime().availableProcessors();
     private static ExecutorService executor = Executors.newFixedThreadPool(cores + 1);
 
-    private Button openSecondActivity;
-    private Button refreshButton;
     private int mProgressStatus = 0;
     ProgressBar progressBar;
     LinearLayout mainLayout;
@@ -63,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
     ImageButton imageButton;
     ScrollView scrollView;
     LinearLayout coinsLayout;
-    TextView textView;
     HandlerThread handlerThread = new HandlerThread("handlerThread");
     Button addCoins;
     OkHttpClient client;
@@ -84,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
 
         progressBar = findViewById(R.id.progress_circular);
 
-        refreshButton = findViewById(R.id.refresh);
+        Button refreshButton = findViewById(R.id.refresh);
 
         addCoins = findViewById(R.id.add_coin);
 
@@ -186,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
                         final int changeWeek = object2.getInt("percent_change_7d");
                         final String logo = "https://s2.coinmarketcap.com/static/img/coins/64x64/" + id + ".png";
 
-                        String data = logo + "-" + name + "-" + symbol + "-" + price + "-" + changeHour + "-" + changeDay + "-" + changeWeek;
+                        String data = logo + "-" + symbol + "-" + name + "-" + price + "-" + changeHour + "-" + changeDay + "-" + changeWeek;
                         writeToFile(data, MainActivity.this);
 
                         if (status == 2) {
@@ -263,6 +254,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("MMD2", name + "-" + symbol + "-" + price + "-" + changeHour + "-" + changeDay + "-" + changeWeek);
                     }
                 } catch (IOException | JSONException e) {
+                    updateLinearLayoutFromFile(MainActivity.this);
                     e.printStackTrace();
                 }
             }
@@ -277,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("config.txt", Context.MODE_PRIVATE));
+                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("coins.txt", Context.MODE_PRIVATE));
                     outputStreamWriter.write(data);
                     outputStreamWriter.close();
                 }
@@ -289,13 +281,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String readFromFile(Context context) {
-
         String ret = "";
 
         try {
-            InputStream inputStream = context.openFileInput("config.txt");
+            InputStream inputStream = context.openFileInput("coins.txt");
 
-            if ( inputStream != null ) {
+            if (inputStream != null) {
                 InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
                 String receiveString = "";
@@ -318,9 +309,79 @@ public class MainActivity extends AppCompatActivity {
         return ret;
     }
 
+    private void updateLinearLayoutFromFile(MainActivity mainActivity) {
+        String[] string = readFromFile(mainActivity).split("\n");
 
+        final TextView coinName = findViewById(R.id.coin_name);
+        final TextView coinPrice = findViewById(R.id.coin_price);
+        final TextView hc = findViewById(R.id.hour_changes);
+        final TextView dc = findViewById(R.id.day_changes);
+        final TextView wc = findViewById(R.id.week_changes);
 
-    private void updateLinearLayout() {
+        for (String s : string) {
+            final String[] coinInfo = s.split("-");
+
+            MainActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (firstTime[0]) {
+                        coinName.setText(coinInfo[1] + "|" + coinInfo[2]);
+                        coinPrice.setText(coinInfo[3] + "$");
+                        hc.setText("1h: " + coinInfo[4] + "%");
+                        dc.setText("1d: " + coinInfo[5] + "%");
+                        wc.setText("1w: " + coinInfo[6] + "%");
+                        coinsLayout.setVisibility(View.VISIBLE);
+                        Glide.with(MainActivity.this)
+                                .load(coinInfo[0])
+                                .into(imageButton);
+                        imageButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                setSymbol(symbol);
+                                startActivity(new Intent(MainActivity.this, SecondActivity.class));
+                            }
+                        });
+                        firstTime[0] = false;
+
+                    } else {
+                        LayoutInflater vi = (LayoutInflater) MainActivity.this
+                                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        View v = vi.inflate(R.layout.activity_main, null);
+
+                        final LinearLayout linearLayout = v.findViewById(R.id.coin_layouts);
+
+                        if (linearLayout.getParent() != null) {
+                            ((ViewGroup) linearLayout.getParent()).removeView(linearLayout); // <- fix
+                        }
+                        final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+
+                        params.setMargins(0, 10, 0, 10);
+
+                        params.gravity = Gravity.CENTER_VERTICAL;
+                        mainLayout.setOrientation(LinearLayout.VERTICAL);
+
+                        ((TextView) linearLayout.findViewById(R.id.coin_name)).setText(coinInfo[1] + "|" + coinInfo[2]);
+                        ((TextView) linearLayout.findViewById(R.id.coin_price)).setText(coinInfo[3] + "$");
+                        ((TextView) linearLayout.findViewById(R.id.hour_changes)).setText("1h: " + coinInfo[4] + "%");
+                        ((TextView) linearLayout.findViewById(R.id.day_changes)).setText("1d: " + coinInfo[5] + "%");
+                        ((TextView) linearLayout.findViewById(R.id.week_changes)).setText("1w: " + coinInfo[6] + "%");
+                        Glide.with(MainActivity.this)
+                                .load(coinInfo[7])
+                                .into(((ImageButton) linearLayout.findViewById(R.id.coin_image)));
+                        ((ImageButton) linearLayout.findViewById(R.id.coin_image)).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                setSymbol(symbol);
+                                startActivity(new Intent(MainActivity.this, SecondActivity.class));
+                            }
+                        });
+                        linearLayout.setVisibility(View.VISIBLE);
+                        mainLayout.addView(linearLayout, params);
+                    }
+                }
+            });
+        }
 
 
     }
