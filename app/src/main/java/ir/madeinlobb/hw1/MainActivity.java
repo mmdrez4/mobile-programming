@@ -3,6 +3,8 @@ package ir.madeinlobb.hw1;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -21,7 +23,6 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
-import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,27 +35,27 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.concurrent.Executor;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
-import okhttp3.Call;
-import okhttp3.Callback;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    static int start = 1;
+    static int start = -9;
+    static int counter = 0;
     public static String symbol;
+    ArrayList<DigitalCoin> coins = new ArrayList<>();
 
     private static int cores = Runtime.getRuntime().availableProcessors();
     private static ExecutorService executor = Executors.newFixedThreadPool(cores + 1);
 
-    private Button openSecondActivity;
-    private Button refreshButton;
+    private static boolean isCreated = false;
+
     private int mProgressStatus = 0;
     ProgressBar progressBar;
     LinearLayout mainLayout;
@@ -63,9 +64,7 @@ public class MainActivity extends AppCompatActivity {
     ImageButton imageButton;
     ScrollView scrollView;
     LinearLayout coinsLayout;
-    TextView textView;
     HandlerThread handlerThread = new HandlerThread("handlerThread");
-    Gson gson;
     Button addCoins;
     OkHttpClient client;
 
@@ -74,16 +73,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-/*
-        Handler handler = new Handler();
-        private Runnable runnableCode = new Runnable() {
-            @Override
-            public void run() {
-                //
-            }
-        };
-        handler.postDelayed(runnableCode, 2000);
- */
+
         barLayout = findViewById(R.id.bar);
         imageButton = findViewById(R.id.coin_image);
 
@@ -94,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
 
         progressBar = findViewById(R.id.progress_circular);
 
-        refreshButton = findViewById(R.id.refresh);
+        Button refreshButton = findViewById(R.id.refresh);
 
         addCoins = findViewById(R.id.add_coin);
 
@@ -105,13 +95,14 @@ public class MainActivity extends AppCompatActivity {
                 mainLayout.removeAllViews();
                 mainLayout.addView(barLayout);
                 mainLayout.addView(coinsLayout);
+                firstTime[0] = true;
 
                 progressBar.setVisibility(View.VISIBLE);
                 final Handler handler = new Handler();
-                Thread thread = new Thread() {
+                executor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        getWebService(2);
+                        getWebService(2, 1, 10 * counter);
                         while (mProgressStatus < 100) {
                             mProgressStatus++;
                             android.os.SystemClock.sleep(50);
@@ -129,25 +120,33 @@ public class MainActivity extends AppCompatActivity {
                             }
                         });
                     }
-                };
-                thread.start();
+                });
+
             }
         });
 
         addCoins.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getWebService(1);
+                if (checkConnection()) {
+                    Log.d("CONNECTION", " ok");
+                    getWebService(1, start, 10);
+                    //TODO
+//                    start += 10;
+                } else {
+                    Log.d("CONNECTION", "not ok");
+                    updateLinearLayoutFromFile(MainActivity.this);
+                }
             }
         });
 
     }
 
-    public void stop(){
+    public void stop() {
         executor.shutdown();
     }
 
-    private synchronized void getWebService(final int status) {
+    private synchronized void getWebService(final int status, final int startPoint, final int limit) {
 
         final TextView coinName = findViewById(R.id.coin_name);
         final TextView coinPrice = findViewById(R.id.coin_price);
@@ -158,23 +157,36 @@ public class MainActivity extends AppCompatActivity {
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                int end = start + 4;
-                String url;
-                if (status == 1) {
-                    Log.d("START1", String.valueOf(start));
-                    url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=" + start + "&limit=" + end + "&aux=platform&cryptocurrency_type=coins";
-                    Log.d("START2", String.valueOf(start));
-                } else {
-                    url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=" + 1 + "&limit=" + end + "&aux=platform&cryptocurrency_type=coins";
-                }
-                client = new OkHttpClient().newBuilder()
-                        .build();
-                Request request = new Request.Builder()
-                        .url(url)
-                        .method("GET", null)
+//                int end = start + 4;
+//                String url;
+
+                client = new OkHttpClient();
+
+                HttpUrl.Builder urlBuilder = HttpUrl.parse("https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?limit="
+                        .concat(String.valueOf(limit)).concat("&start=".concat(String.valueOf(startPoint))))
+                        .newBuilder();
+
+                String url = urlBuilder.build().toString();
+
+                final Request request = new Request.Builder().url(url)
                         .addHeader("X-CMC_PRO_API_KEY", "32d8965f-ed31-4925-975b-da24cf243138")
-                        .addHeader("Cookie", "__cfduid=d27e1c676eafe6c7134bd57d707fcae1c1615039668")
                         .build();
+
+//                if (status == 1) {
+//                    Log.d("START1", String.valueOf(start));
+//                    url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=" + start + "&limit=" + end + "&aux=platform&cryptocurrency_type=coins";
+//                    Log.d("START2", String.valueOf(start));
+//                } else {
+//                    url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=" + 1 + "&limit=" + end + "&aux=platform&cryptocurrency_type=coins";
+//                }
+//                client = new OkHttpClient().newBuilder()
+//                        .build();
+//                Request request = new Request.Builder()
+//                        .url(url)
+//                        .method("GET", null)
+//                        .addHeader("X-CMC_PRO_API_KEY", "32d8965f-ed31-4925-975b-da24cf243138")
+//                        .addHeader("Cookie", "__cfduid=d27e1c676eafe6c7134bd57d707fcae1c1615039668")
+//                        .build();
 
                 try {
                     Response response = client.newCall(request).execute();
@@ -196,80 +208,83 @@ public class MainActivity extends AppCompatActivity {
                         final int changeWeek = object2.getInt("percent_change_7d");
                         final String logo = "https://s2.coinmarketcap.com/static/img/coins/64x64/" + id + ".png";
 
-                        String data = logo + "-" + name + "-" + symbol + "-" + price + "-" + changeHour + "-" + changeDay + "-" + changeWeek;
+                        boolean coinCondition = setAddCoins(symbol, name, logo, price, changeHour, changeDay, changeWeek);
+
+                        String data = logo + "-" + symbol + "-" + name + "-" + price + "-" + changeHour + "-" + changeDay + "-" + changeWeek;
                         writeToFile(data, MainActivity.this);
 
                         if (status == 2) {
                             firstTime[0] = true;
                         }
 
-                        MainActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (firstTime[0]) {
-                                    if (status == 2) {
-                                        coinsLayout.setBackgroundColor(Color.GREEN);
-                                    }
-                                    coinName.setText(symbol + "|" + name);
-                                    coinPrice.setText(price + "$");
-                                    hc.setText("1h: " + changeHour + "%");
-                                    dc.setText("1d: " + changeDay + "%");
-                                    wc.setText("1w: " + changeWeek + "%");
-                                    coinsLayout.setVisibility(View.VISIBLE);
-                                    Glide.with(MainActivity.this)
-                                            .load(logo)
-                                            .into(imageButton);
-                                    imageButton.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View view) {
-                                            setSymbol(symbol);
-                                            startActivity(new Intent(MainActivity.this, SecondActivity.class));
+                        if (status == 2 || (status == 1 && coinCondition)) {
+                            MainActivity.this.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (firstTime[0]) {
+                                        if (status == 2) {
+                                            coinsLayout.setBackgroundColor(Color.GREEN);
                                         }
-                                    });
-                                    firstTime[0] = false;
+                                        coinName.setText(symbol + "|" + name);
+                                        coinPrice.setText(price + "$");
+                                        hc.setText("1h: " + changeHour + "%");
+                                        dc.setText("1d: " + changeDay + "%");
+                                        wc.setText("1w: " + changeWeek + "%");
+                                        coinsLayout.setVisibility(View.VISIBLE);
+                                        Glide.with(MainActivity.this)
+                                                .load(logo)
+                                                .into(imageButton);
+                                        imageButton.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View view) {
+                                                setSymbol(symbol);
+                                                startActivity(new Intent(MainActivity.this, SecondActivity.class));
+                                            }
+                                        });
+                                        firstTime[0] = false;
 
-                                } else {
-                                    LayoutInflater vi = (LayoutInflater) MainActivity.this
-                                            .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                    View v = vi.inflate(R.layout.activity_main, null);
+                                    } else {
+                                        LayoutInflater vi = (LayoutInflater) MainActivity.this
+                                                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                        View v = vi.inflate(R.layout.activity_main, null);
 
-                                    final LinearLayout linearLayout = v.findViewById(R.id.coin_layouts);
+                                        final LinearLayout linearLayout = v.findViewById(R.id.coin_layouts);
 
-                                    if (linearLayout.getParent() != null) {
-                                        ((ViewGroup) linearLayout.getParent()).removeView(linearLayout); // <- fix
-                                    }
-                                    final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                                            LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-
-                                    params.setMargins(0, 10, 0, 10);
-
-                                    params.gravity = Gravity.CENTER_VERTICAL;
-                                    mainLayout.setOrientation(LinearLayout.VERTICAL);
-
-                                    ((TextView) linearLayout.findViewById(R.id.coin_name)).setText(symbol + " | " + name);
-                                    ((TextView) linearLayout.findViewById(R.id.coin_price)).setText(price + " $");
-                                    ((TextView) linearLayout.findViewById(R.id.hour_changes)).setText("1h: " + changeHour + "%");
-                                    ((TextView) linearLayout.findViewById(R.id.day_changes)).setText("1d: " + changeDay + "%");
-                                    ((TextView) linearLayout.findViewById(R.id.week_changes)).setText("1w: " + changeWeek + "%");
-                                    Glide.with(MainActivity.this)
-                                            .load(logo)
-                                            .into(((ImageButton) linearLayout.findViewById(R.id.coin_image)));
-                                    ((ImageButton) linearLayout.findViewById(R.id.coin_image)).setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View view) {
-                                            setSymbol(symbol);
-                                            startActivity(new Intent(MainActivity.this, SecondActivity.class));
+                                        if (linearLayout.getParent() != null) {
+                                            ((ViewGroup) linearLayout.getParent()).removeView(linearLayout); // <- fix
                                         }
-                                    });
-                                    linearLayout.setVisibility(View.VISIBLE);
-                                    if (status == 2) {
-                                        linearLayout.setBackgroundColor(Color.GREEN);
+                                        final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                                                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+
+                                        params.setMargins(0, 10, 0, 10);
+
+                                        params.gravity = Gravity.CENTER_VERTICAL;
+                                        mainLayout.setOrientation(LinearLayout.VERTICAL);
+
+                                        ((TextView) linearLayout.findViewById(R.id.coin_name)).setText(symbol + " | " + name);
+                                        ((TextView) linearLayout.findViewById(R.id.coin_price)).setText(price + " $");
+                                        ((TextView) linearLayout.findViewById(R.id.hour_changes)).setText("1h: " + changeHour + "%");
+                                        ((TextView) linearLayout.findViewById(R.id.day_changes)).setText("1d: " + changeDay + "%");
+                                        ((TextView) linearLayout.findViewById(R.id.week_changes)).setText("1w: " + changeWeek + "%");
+                                        Glide.with(MainActivity.this)
+                                                .load(logo)
+                                                .into(((ImageButton) linearLayout.findViewById(R.id.coin_image)));
+                                        ((ImageButton) linearLayout.findViewById(R.id.coin_image)).setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View view) {
+                                                setSymbol(symbol);
+                                                startActivity(new Intent(MainActivity.this, SecondActivity.class));
+                                            }
+                                        });
+                                        linearLayout.setVisibility(View.VISIBLE);
+                                        if (status == 2) {
+                                            linearLayout.setBackgroundColor(Color.GREEN);
+                                        }
+                                        mainLayout.addView(linearLayout, params);
                                     }
-                                    mainLayout.addView(linearLayout, params);
                                 }
-                            }
-                        });
-
+                            });
+                        }
                         Log.d("MMD2", name + "-" + symbol + "-" + price + "-" + changeHour + "-" + changeDay + "-" + changeWeek);
                     }
                 } catch (IOException | JSONException e) {
@@ -280,64 +295,35 @@ public class MainActivity extends AppCompatActivity {
 
         start += 5;
 
-//        if (status == 1 && !thread.isAlive()) {
-//            start += 5;
-//        }
     }
 
-    private void getWebService2() {
-        final TextView coinName = findViewById(R.id.coin_name);
-        TextView coinPrice = findViewById(R.id.coin_price);
-
-        OkHttpClient client = new OkHttpClient();
-        String url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=1&limit=2&aux=platform&cryptocurrency_type=coins";
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
+    public void CreateFile() {
+        try {
+            File myObj = new File("coins.txt");
+            if (myObj.createNewFile()) {
+                Log.d("File created: ", myObj.getName());
+            } else {
+                Log.d("File already exists.", " ");
             }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    String jsonData = response.body().string();
-                    JSONObject Jobject = null;
-                    try {
-                        Jobject = new JSONObject(jsonData);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    try {
-                        JSONArray Jarray = Jobject.getJSONArray("data");
-                        for (int i = 0; i < Jarray.length(); i++) {
-                            JSONObject object = Jarray.getJSONObject(i);
-                            String name = object.getString("name");
-                            String symbol = object.getString("symbol");
-                            Log.d("TAG", name + " : " + symbol);
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-            }
-        });
-
+        } catch (IOException e) {
+            Log.d("An error occurred.", " ");
+            e.printStackTrace();
+        }
+        isCreated = true;
     }
 
     private synchronized void writeToFile(final String data, final Context context) {
+        if (!isCreated) {
+            CreateFile();
+        }
         executor.execute(new Runnable() {
             @Override
             public void run() {
                 try {
-                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("config.txt", Context.MODE_PRIVATE));
+                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("coins.txt", Context.MODE_PRIVATE));
                     outputStreamWriter.write(data);
                     outputStreamWriter.close();
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     Log.e("Exception", "File write failed: " + e.toString());
                 }
             }
@@ -345,27 +331,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String readFromFile(Context context) {
-
+        Log.d("READ-FROM-FILE", "im here");
         String ret = "";
 
         try {
-            InputStream inputStream = context.openFileInput("config.txt");
+            InputStream inputStream = context.openFileInput("coins.txt");
 
-            if ( inputStream != null ) {
+            if (inputStream != null) {
                 InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
                 String receiveString = "";
                 StringBuilder stringBuilder = new StringBuilder();
 
-                while ( (receiveString = bufferedReader.readLine()) != null ) {
+                while ((receiveString = bufferedReader.readLine()) != null) {
                     stringBuilder.append("\n").append(receiveString);
                 }
 
                 inputStream.close();
                 ret = stringBuilder.toString();
             }
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             Log.e("login activity", "File not found: " + e.toString());
         } catch (IOException e) {
             Log.e("login activity", "Can not read file: " + e.toString());
@@ -374,17 +359,123 @@ public class MainActivity extends AppCompatActivity {
         return ret;
     }
 
+    private void updateLinearLayoutFromFile(MainActivity mainActivity) {
+        Log.d("UPDATE-LAYOUT-FILE", "im here");
+        String[] string = readFromFile(mainActivity).split("\n");
 
+        final TextView coinName = findViewById(R.id.coin_name);
+        final TextView coinPrice = findViewById(R.id.coin_price);
+        final TextView hc = findViewById(R.id.hour_changes);
+        final TextView dc = findViewById(R.id.day_changes);
+        final TextView wc = findViewById(R.id.week_changes);
 
-    private void updateLinearLayout() {
+        for (String s : string) {
+            final String[] coinInfo = s.split("-");
+
+            MainActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (firstTime[0]) {
+                        coinName.setText(coinInfo[1] + "|" + coinInfo[2]);
+                        coinPrice.setText(coinInfo[3] + "$");
+                        hc.setText("1h: " + coinInfo[4] + "%");
+                        dc.setText("1d: " + coinInfo[5] + "%");
+                        wc.setText("1w: " + coinInfo[6] + "%");
+                        coinsLayout.setVisibility(View.VISIBLE);
+                        Glide.with(MainActivity.this)
+                                .load(coinInfo[0])
+                                .into(imageButton);
+                        imageButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                setSymbol(symbol);
+                                startActivity(new Intent(MainActivity.this, SecondActivity.class));
+                            }
+                        });
+                        firstTime[0] = false;
+
+                    } else {
+                        LayoutInflater vi = (LayoutInflater) MainActivity.this
+                                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        View v = vi.inflate(R.layout.activity_main, null);
+
+                        final LinearLayout linearLayout = v.findViewById(R.id.coin_layouts);
+
+                        if (linearLayout.getParent() != null) {
+                            ((ViewGroup) linearLayout.getParent()).removeView(linearLayout); // <- fix
+                        }
+                        final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+
+                        params.setMargins(0, 10, 0, 10);
+
+                        params.gravity = Gravity.CENTER_VERTICAL;
+                        mainLayout.setOrientation(LinearLayout.VERTICAL);
+
+                        ((TextView) linearLayout.findViewById(R.id.coin_name)).setText(coinInfo[1] + "|" + coinInfo[2]);
+                        ((TextView) linearLayout.findViewById(R.id.coin_price)).setText(coinInfo[3] + "$");
+                        ((TextView) linearLayout.findViewById(R.id.hour_changes)).setText("1h: " + coinInfo[4] + "%");
+                        ((TextView) linearLayout.findViewById(R.id.day_changes)).setText("1d: " + coinInfo[5] + "%");
+                        ((TextView) linearLayout.findViewById(R.id.week_changes)).setText("1w: " + coinInfo[6] + "%");
+                        Glide.with(MainActivity.this)
+                                .load(coinInfo[0])
+                                .into(((ImageButton) linearLayout.findViewById(R.id.coin_image)));
+                        ((ImageButton) linearLayout.findViewById(R.id.coin_image)).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                setSymbol(symbol);
+                                startActivity(new Intent(MainActivity.this, SecondActivity.class));
+                            }
+                        });
+                        linearLayout.setVisibility(View.VISIBLE);
+                        mainLayout.addView(linearLayout, params);
+                    }
+                }
+            });
+        }
 
 
     }
 
-    private static void setSymbol(String symbol){
+    private boolean setAddCoins(String symbol, String name, String logoUrl, int price, int changeHour, int changeDay, int changeWeek) {
+        int flag = 0;
+        for (DigitalCoin coin1 : coins) {
+            if (coin1.getSymbol().equals(symbol)) {
+                flag = 1;
+                break;
+            }
+        }
+        if (flag == 0) {
+            DigitalCoin coin = new DigitalCoin(symbol, name, logoUrl, price, changeHour, changeDay, changeWeek);
+            coins.add(coin);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkConnection() {
+//        ConnectivityManager conMgr =  (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+//        NetworkInfo netInfo = conMgr.getActiveNetworkInfo();
+//        return netInfo == null;
+
+        ConnectivityManager mgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = mgr.getActiveNetworkInfo();
+
+        if (netInfo != null) {
+            if (netInfo.isConnected()) {
+                counter++;
+                start += 10;
+                return true;
+            }
+        } else {
+            return false;
+        }
+        return false;
+    }
+
+    private static void setSymbol(String symbol) {
         MainActivity.symbol = symbol;
     }
-
 
     @Override
     protected void onDestroy() {

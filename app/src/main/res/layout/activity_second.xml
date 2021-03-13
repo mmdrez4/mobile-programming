@@ -58,6 +58,7 @@
 
                 <Button
                     android:text="Day1"
+                    android:background="#ADD8E6"
                     android:id="@+id/day_num"
                     android:layout_width="80dp"
                     android:layout_height="80dp" />
@@ -71,11 +72,9 @@
                         android:id="@+id/open_price"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="156dp"
-                        android:layout_marginLeft="156dp"
-                        android:text="BTC coin "
-                        android:textSize="20sp"
-                        app:layout_constraintStart_toStartOf="@+id/coin_image"
+                        android:layout_marginStart="146dp"
+                        android:layout_marginLeft="176dp"
+                        android:text="open price: "
                         tools:ignore="MissingConstraints,NotSibling"
                         tools:layout_editor_absoluteY="0dp" />
 
@@ -85,8 +84,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="56dp"
-                        android:layout_marginRight="260dp"
-                        android:text="1h: 0%"
+                        android:layout_marginRight="210dp"
+                        android:text="low price"
                         app:layout_constraintRight_toRightOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
@@ -96,7 +95,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="130dp"
                         android:layout_marginTop="56dp"
-                        android:layout_marginEnd="44dp"
+                        android:layout_marginEnd="54dp"
                         android:layout_marginRight="44dp"
                         android:text="7D: 2%"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -108,7 +107,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="106dp"
-                        android:layout_marginRight="24dp"
+                        android:layout_marginRight="54dp"
                         android:text="7D: 2%"
                         app:layout_constraintRight_toRightOf="parent"
                         app:layout_constraintTop_toTopOf="@+id/coin_price" />
@@ -136,22 +135,10 @@
             android:layout_height="100dp">
 
             <Button
-                android:id="@+id/refresh"
-                android:layout_width="197dp"
-                android:layout_height="72dp"
-                android:layout_centerVertical="true"
-                android:text="refresh"
-                android:textColor="#008000" />
-
-            <Button
                 android:id="@+id/back"
-                android:layout_width="181dp"
-                android:layout_height="72dp"
+                android:layout_width="match_parent"
+                android:layout_height="67dp"
                 android:layout_centerVertical="true"
-                android:layout_marginStart="10dp"
-                android:layout_marginLeft="20dp"
-                android:layout_toEndOf="@+id/refresh"
-                android:layout_toRightOf="@+id/refresh"
                 android:text="back"
                 android:textColor="#008000" />
 

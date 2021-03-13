@@ -1,6 +1,7 @@
 package ir.madeinlobb.hw1;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,7 +23,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -36,7 +36,9 @@ public class SecondActivity extends AppCompatActivity {
     final boolean[] firstTime = {true};
     Button week;
     Button month;
+    Button backButton;
     LinearLayout mainLayout;
+    LinearLayout barLayout;
 
     private static int cores = Runtime.getRuntime().availableProcessors();
     private static ExecutorService executor = Executors.newFixedThreadPool(cores + 1);
@@ -44,8 +46,6 @@ public class SecondActivity extends AppCompatActivity {
     ScrollView scrollView;
     LinearLayout statusLayout;
     int status;
-//    public ArrayList<ArrayList> response = new ArrayList<>();
-
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
@@ -53,18 +53,21 @@ public class SecondActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_second);
 
-
+        barLayout = findViewById(R.id.bar);
         mainLayout = findViewById(R.id.main_linear_layout);
         scrollView = findViewById(R.id.scroll_view);
         statusLayout = findViewById(R.id.status_layout);
 
         week = findViewById(R.id.week_button);
-
         month = findViewById(R.id.month_button);
+        backButton = findViewById(R.id.back);
 
         week.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mainLayout.removeAllViews();
+                mainLayout.addView(barLayout);
+                mainLayout.addView(statusLayout);
                 try {
                     Log.d("SYMBOL", MainActivity.symbol);
                     getWebService(7, MainActivity.symbol);
@@ -77,6 +80,9 @@ public class SecondActivity extends AppCompatActivity {
         month.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mainLayout.removeAllViews();
+                mainLayout.addView(barLayout);
+                mainLayout.addView(statusLayout);
                 try {
                     getWebService(30, MainActivity.symbol);
                 } catch (IOException | JSONException e) {
@@ -85,12 +91,17 @@ public class SecondActivity extends AppCompatActivity {
             }
         });
 
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(SecondActivity.this, MainActivity.class));
+            }
+        });
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
     private synchronized void getWebService(final int limit, final String symbol) throws IOException, JSONException {
-//        Log.d("SYMBOL: ", MainActivity.symbol);
-//        response = ApiReq.getCandles(MainActivity.symbol, limit);
 
         final Button dayNum = findViewById(R.id.day_num);
         final TextView openPrice = findViewById(R.id.open_price);
@@ -108,35 +119,28 @@ public class SecondActivity extends AppCompatActivity {
                         .newBuilder();
 
                 String url = urlBuilder.build().toString();
+                Log.d("SHITURL: ", url);
+                final Request request = new Request.Builder()
+                        .url(url)
+                        .method("GET", null)
+                        .addHeader("X-CoinAPI-Key", "E5CB2574-A0D2-4A8F-96A9-B0FF6FF42162").build();
 
-                final Request request = new Request.Builder().url(url).method("GET", null).addHeader("X-CoinPI-Key", "E5CB2574-A0D2-4A8F-96A9-B0FF6FF42162").build();
 
                 try {
                     Response response = client.newCall(request).execute();
                     String jsonData = response.body().string();
                     Log.d("SHIT: ", jsonData);
-                    JSONArray Jarray =  new JSONArray(jsonData);
+                    JSONArray Jarray = new JSONArray(jsonData);
 
                     for (int i = 0; i < limit; i++) {
                         JSONObject object = (JSONObject) Jarray.get(i);
-//                        highPrices.set(i, object.getDouble("price_high"));
-//                        lowPrices.set(i, object.getDouble("price_low"));
-//                        closePrices.set(i, object.getDouble("price_close"));
-//                        openPrices.set(i, object.getDouble("price_open"));
 
                         final int high = object.getInt("price_high");
                         final int low = object.getInt("price_low");
                         final int close = object.getInt("price_close");
                         final int open = object.getInt("price_open");
 
-//                        final String highPrice = object.getString("name");
-//                        final String lowPrice = object.getString("symbol");
-//                        int id = object.getInt("id");
-//                        object2 = object.getJSONObject("quote").getJSONObject("USD");
-//                        final int price = object2.getInt("price");
-//                        final int changeHour = object2.getInt("percent_change_1h");
-//                        final int changeDay = object2.getInt("percent_change_24h");
-//                        final int changeWeek = object2.getInt("percent_change_7d");
+                        Log.d("SHIT: ", String.valueOf(high));
 
                         final int finalI = i + 1;
                         SecondActivity.this.runOnUiThread(new Runnable() {
@@ -144,10 +148,10 @@ public class SecondActivity extends AppCompatActivity {
                             public void run() {
                                 if (firstTime[0]) {
                                     dayNum.setText("DAY" + finalI);
-                                    openPrice.setText((int) open);
-                                    closePrice.setText((int) close);
-                                    lowPrice.setText((int) low);
-                                    highPrice.setText((int) high);
+                                    openPrice.setText("   Open Price: " + open);
+                                    closePrice.setText("Close Price: " + close);
+                                    lowPrice.setText("  Low Price: " + low);
+                                    highPrice.setText("High Price: " + high);
                                     statusLayout.setVisibility(View.VISIBLE);
                                     firstTime[0] = false;
                                 } else {
@@ -169,17 +173,16 @@ public class SecondActivity extends AppCompatActivity {
                                     mainLayout.setOrientation(LinearLayout.VERTICAL);
 
                                     ((TextView) linearLayout.findViewById(R.id.day_num)).setText("DAY" + finalI);
-                                    ((TextView) linearLayout.findViewById(R.id.open_price)).setText((int) open);
-                                    ((TextView) linearLayout.findViewById(R.id.close_price)).setText((int) close);
-                                    ((TextView) linearLayout.findViewById(R.id.low_price)).setText((int) low);
-                                    ((TextView) linearLayout.findViewById(R.id.high_price)).setText((int) high);
+                                    ((TextView) linearLayout.findViewById(R.id.open_price)).setText("   Open Price: " + open);
+                                    ((TextView) linearLayout.findViewById(R.id.close_price)).setText("Close Price: " + close);
+                                    ((TextView) linearLayout.findViewById(R.id.low_price)).setText("Low Price: " + low);
+                                    ((TextView) linearLayout.findViewById(R.id.high_price)).setText("High Price: " + high);
 
                                     linearLayout.setVisibility(View.VISIBLE);
                                     if (status == 2) {
                                         linearLayout.setBackgroundColor(Color.GREEN);
                                     }
                                     mainLayout.addView(linearLayout, params);
-
                                 }
                             }
                         });
@@ -191,7 +194,6 @@ public class SecondActivity extends AppCompatActivity {
 
             }
         });
-
 
     }
 
