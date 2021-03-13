@@ -150,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
 //                    start += 10;
                     } else {
                         Log.d("CONNECTION", "not ok");
-                        updateLinearLayoutFromFile(MainActivity.this);
+//                        updateLinearLayoutFromFile(MainActivity.this);
                     }
                 }
             }
@@ -373,81 +373,81 @@ public class MainActivity extends AppCompatActivity {
         return ret;
     }
 
-    private void updateLinearLayoutFromFile(MainActivity mainActivity) {
-        Log.d("UPDATE-LAYOUT-FILE", "im here");
-        String[] string = readFromFile(mainActivity).split("\n");
-
-        final TextView coinName = findViewById(R.id.coin_name);
-        final TextView coinPrice = findViewById(R.id.coin_price);
-        final TextView hc = findViewById(R.id.hour_changes);
-        final TextView dc = findViewById(R.id.day_changes);
-        final TextView wc = findViewById(R.id.week_changes);
-
-        for (String s : string) {
-            final String[] coinInfo = s.split("-");
-
-            MainActivity.this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (firstTime[0]) {
-                        coinName.setText(coinInfo[1] + "|" + coinInfo[2]);
-                        coinPrice.setText(coinInfo[3] + "$");
-                        hc.setText("1h: " + coinInfo[4] + "%");
-                        dc.setText("1d: " + coinInfo[5] + "%");
-                        wc.setText("1w: " + coinInfo[6] + "%");
-                        coinsLayout.setVisibility(View.VISIBLE);
-                        Glide.with(MainActivity.this)
-                                .load(coinInfo[0])
-                                .into(imageButton);
-                        imageButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                setSymbol(symbol);
-                                startActivity(new Intent(MainActivity.this, SecondActivity.class));
-                            }
-                        });
-                        firstTime[0] = false;
-
-                    } else {
-                        LayoutInflater vi = (LayoutInflater) MainActivity.this
-                                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                        View v = vi.inflate(R.layout.activity_main, null);
-
-                        final LinearLayout linearLayout = v.findViewById(R.id.coin_layouts);
-
-                        if (linearLayout.getParent() != null) {
-                            ((ViewGroup) linearLayout.getParent()).removeView(linearLayout); // <- fix
-                        }
-                        final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-
-                        params.setMargins(0, 10, 0, 10);
-
-                        params.gravity = Gravity.CENTER_VERTICAL;
-                        mainLayout.setOrientation(LinearLayout.VERTICAL);
-
-                        ((TextView) linearLayout.findViewById(R.id.coin_name)).setText(coinInfo[1] + "|" + coinInfo[2]);
-                        ((TextView) linearLayout.findViewById(R.id.coin_price)).setText(coinInfo[3] + "$");
-                        ((TextView) linearLayout.findViewById(R.id.hour_changes)).setText("1h: " + coinInfo[4] + "%");
-                        ((TextView) linearLayout.findViewById(R.id.day_changes)).setText("1d: " + coinInfo[5] + "%");
-                        ((TextView) linearLayout.findViewById(R.id.week_changes)).setText("1w: " + coinInfo[6] + "%");
-                        Glide.with(MainActivity.this)
-                                .load(coinInfo[0])
-                                .into(((ImageButton) linearLayout.findViewById(R.id.coin_image)));
-                        ((ImageButton) linearLayout.findViewById(R.id.coin_image)).setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                setSymbol(symbol);
-                                startActivity(new Intent(MainActivity.this, SecondActivity.class));
-                            }
-                        });
-                        linearLayout.setVisibility(View.VISIBLE);
-                        mainLayout.addView(linearLayout, params);
-                    }
-                }
-            });
-        }
-    }
+//    private void updateLinearLayoutFromFile(MainActivity mainActivity, final ArrayList<DigitalCoin> digitalCoins) {
+//        Log.d("UPDATE-LAYOUT-FILE", "im here");
+//        String[] string = readFromFile(mainActivity).split("\n");
+//
+//        final TextView coinName = findViewById(R.id.coin_name);
+//        final TextView coinPrice = findViewById(R.id.coin_price);
+//        final TextView hc = findViewById(R.id.hour_changes);
+//        final TextView dc = findViewById(R.id.day_changes);
+//        final TextView wc = findViewById(R.id.week_changes);
+//
+//        for (final DigitalCoin coin : digitalCoins) {
+////            final String[] coinInfo = coin.split("-");
+//
+//            MainActivity.this.runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    if (firstTime[0]) {
+//                        coinName.setText(coin.getSymbol() + "|" + coin.getName());
+//                        coinPrice.setText(coin.getPrice() + "$");
+//                        hc.setText("1h: " + coin.getChangeHour() + "%");
+//                        dc.setText("1d: " + coin.getChangeDay() + "%");
+//                        wc.setText("1w: " + coin.getChangeWeek() + "%");
+//                        coinsLayout.setVisibility(View.VISIBLE);
+//                        Glide.with(MainActivity.this)
+//                                .load(coin.getLogoUrl())
+//                                .into(imageButton);
+//                        imageButton.setOnClickListener(new View.OnClickListener() {
+//                            @Override
+//                            public void onClick(View view) {
+//                                setSymbol(symbol);
+//                                startActivity(new Intent(MainActivity.this, SecondActivity.class));
+//                            }
+//                        });
+//                        firstTime[0] = false;
+//
+//                    } else {
+//                        LayoutInflater vi = (LayoutInflater) MainActivity.this
+//                                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//                        View v = vi.inflate(R.layout.activity_main, null);
+//
+//                        final LinearLayout linearLayout = v.findViewById(R.id.coin_layouts);
+//
+//                        if (linearLayout.getParent() != null) {
+//                            ((ViewGroup) linearLayout.getParent()).removeView(linearLayout); // <- fix
+//                        }
+//                        final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+//                                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+//
+//                        params.setMargins(0, 10, 0, 10);
+//
+//                        params.gravity = Gravity.CENTER_VERTICAL;
+//                        mainLayout.setOrientation(LinearLayout.VERTICAL);
+//
+//                        ((TextView) linearLayout.findViewById(R.id.coin_name)).setText(coinInfo[1] + "|" + coinInfo[2]);
+//                        ((TextView) linearLayout.findViewById(R.id.coin_price)).setText(coinInfo[3] + "$");
+//                        ((TextView) linearLayout.findViewById(R.id.hour_changes)).setText("1h: " + coinInfo[4] + "%");
+//                        ((TextView) linearLayout.findViewById(R.id.day_changes)).setText("1d: " + coinInfo[5] + "%");
+//                        ((TextView) linearLayout.findViewById(R.id.week_changes)).setText("1w: " + coinInfo[6] + "%");
+//                        Glide.with(MainActivity.this)
+//                                .load(coinInfo[0])
+//                                .into(((ImageButton) linearLayout.findViewById(R.id.coin_image)));
+//                        ((ImageButton) linearLayout.findViewById(R.id.coin_image)).setOnClickListener(new View.OnClickListener() {
+//                            @Override
+//                            public void onClick(View view) {
+//                                setSymbol(symbol);
+//                                startActivity(new Intent(MainActivity.this, SecondActivity.class));
+//                            }
+//                        });
+//                        linearLayout.setVisibility(View.VISIBLE);
+//                        mainLayout.addView(linearLayout, params);
+//                    }
+//                }
+//            });
+//        }
+//    }
 
     private boolean setAddCoins(String symbol, String name, String logoUrl, int price, int changeHour, int changeDay, int changeWeek) {
         int flag = 0;
