@@ -68,6 +68,7 @@ public class SecondActivity extends AppCompatActivity {
                 mainLayout.removeAllViews();
                 mainLayout.addView(barLayout);
                 mainLayout.addView(statusLayout);
+                firstTime[0] = true;
                 try {
                     Log.d("SYMBOL", MainActivity.symbol);
                     getWebService(7, MainActivity.symbol);
@@ -83,6 +84,7 @@ public class SecondActivity extends AppCompatActivity {
                 mainLayout.removeAllViews();
                 mainLayout.addView(barLayout);
                 mainLayout.addView(statusLayout);
+                firstTime[0] = true;
                 try {
                     getWebService(30, MainActivity.symbol);
                 } catch (IOException | JSONException e) {
@@ -175,7 +177,7 @@ public class SecondActivity extends AppCompatActivity {
                                     ((TextView) linearLayout.findViewById(R.id.day_num)).setText("DAY" + finalI);
                                     ((TextView) linearLayout.findViewById(R.id.open_price)).setText("   Open Price: " + open);
                                     ((TextView) linearLayout.findViewById(R.id.close_price)).setText("Close Price: " + close);
-                                    ((TextView) linearLayout.findViewById(R.id.low_price)).setText("Low Price: " + low);
+                                    ((TextView) linearLayout.findViewById(R.id.low_price)).setText("    Low Price: " + low);
                                     ((TextView) linearLayout.findViewById(R.id.high_price)).setText("High Price: " + high);
 
                                     linearLayout.setVisibility(View.VISIBLE);
