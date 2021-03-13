@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
@@ -65,6 +66,11 @@ public class MainActivity extends AppCompatActivity {
     ProgressBar progressBar;
     LinearLayout mainLayout;
     final boolean[] firstTime = {true};
+
+    private CountDownTimer countDownTimer;
+    private long timeLeftInMilliSeconds = 8000;
+    private boolean isTimerFinished = true;
+
     LinearLayout barLayout;
     ImageButton imageButton;
     ScrollView scrollView;
@@ -96,51 +102,56 @@ public class MainActivity extends AppCompatActivity {
         refreshButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mProgressStatus = 0;
-                mainLayout.removeAllViews();
-                mainLayout.addView(barLayout);
-                mainLayout.addView(coinsLayout);
-                firstTime[0] = true;
+                if (isTimerFinished) {
+                    startTimer();
+                    mProgressStatus = 0;
+                    mainLayout.removeAllViews();
+                    mainLayout.addView(barLayout);
+                    mainLayout.addView(coinsLayout);
+                    firstTime[0] = true;
 
-                progressBar.setVisibility(View.VISIBLE);
-                final Handler handler = new Handler();
-                executor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        getWebService(2, 1, 10 * counter);
-                        while (mProgressStatus < 100) {
-                            mProgressStatus++;
-                            android.os.SystemClock.sleep(50);
+                    progressBar.setVisibility(View.VISIBLE);
+                    final Handler handler = new Handler();
+                    executor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            getWebService(2, 1, 10 * counter);
+                            while (mProgressStatus < 100) {
+                                mProgressStatus++;
+                                android.os.SystemClock.sleep(50);
+                                handler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        progressBar.setProgress(mProgressStatus);
+                                    }
+                                });
+                            }
                             handler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    progressBar.setProgress(mProgressStatus);
+                                    progressBar.setVisibility(View.INVISIBLE);
                                 }
                             });
                         }
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                progressBar.setVisibility(View.INVISIBLE);
-                            }
-                        });
-                    }
-                });
-
+                    });
+                }
             }
         });
 
         addCoins.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (checkConnection()) {
-                    Log.d("CONNECTION", " ok");
-                    getWebService(1, start, 10);
-                    //TODO
+                if (isTimerFinished) {
+                    startTimer();
+                    if (checkConnection()) {
+                        Log.d("CONNECTION", " ok");
+                        getWebService(1, start, 10);
+                        //TODO
 //                    start += 10;
-                } else {
-                    Log.d("CONNECTION", "not ok");
-                    updateLinearLayoutFromFile(MainActivity.this);
+                    } else {
+                        Log.d("CONNECTION", "not ok");
+                        updateLinearLayoutFromFile(MainActivity.this);
+                    }
                 }
             }
         });
@@ -282,8 +293,22 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        start += 5;
+//        start += 5;
+    }
 
+    private void startTimer() {
+        isTimerFinished = false;
+        countDownTimer = new CountDownTimer(timeLeftInMilliSeconds, 1000) {
+            @Override
+            public void onTick(long l) {
+                timeLeftInMilliSeconds = l;
+            }
+
+            @Override
+            public void onFinish() {
+                isTimerFinished = true;
+            }
+        }.start();
     }
 
     public void CreateFile() {
@@ -440,13 +465,13 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    private void addCoinsToFile(){
+    private void addCoinsToFile() {
         String Json = gson.toJson(coins);
 
 
     }
 
-    private void updateLinearLayoutWithGson(String json){
+    private void updateLinearLayoutWithGson(String json) {
 //        ArrayList<DigitalCoin> digitalCoins = gson.fromJson(json, DigitalCoin.class);
 
     }
@@ -458,7 +483,7 @@ public class MainActivity extends AppCompatActivity {
         pw.close();
     }
 
-    private boolean checkConnection() {
+    private synchronized boolean checkConnection() {
         ConnectivityManager mgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = mgr.getActiveNetworkInfo();
 
