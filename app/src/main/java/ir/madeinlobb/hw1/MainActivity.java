@@ -241,7 +241,7 @@ public class MainActivity extends AppCompatActivity {
                         final String logo = "https://s2.coinmarketcap.com/static/img/coins/64x64/" + id + ".png";
 
                         boolean coinCondition = setAddCoins(symbol, name, logo, price, changeHour, changeDay, changeWeek);
-
+                        System.out.println("atttttttiiiiiiiiiiishhhhhhh");
 //                        String data = logo + "-" + symbol + "-" + name + "-" + price + "-" + changeHour + "-" + changeDay + "-" + changeWeek;
 //                        writeToFile(data, MainActivity.this);
                         addCoinsToFile(name);
