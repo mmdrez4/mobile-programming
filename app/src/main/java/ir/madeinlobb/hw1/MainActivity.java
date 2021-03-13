@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -20,10 +21,12 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,11 +36,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -196,11 +202,11 @@ public class MainActivity extends AppCompatActivity {
                         final int changeDay = object2.getInt("percent_change_24h");
                         final int changeWeek = object2.getInt("percent_change_7d");
                         final String logo = "https://s2.coinmarketcap.com/static/img/coins/64x64/" + id + ".png";
-
                         boolean coinCondition = setAddCoins(symbol, name, logo, price, changeHour, changeDay, changeWeek);
 
-                        String data = logo + "-" + symbol + "-" + name + "-" + price + "-" + changeHour + "-" + changeDay + "-" + changeWeek;
-                        writeToFile(data, MainActivity.this);
+//                        String data = logo + "-" + symbol + "-" + name + "-" + price + "-" + changeHour + "-" + changeDay + "-" + changeWeek;
+//                        writeToFile(data, MainActivity.this);
+                        addCoinsToFile(name);
 
                         if (status == 2) {
                             firstTime[0] = true;
@@ -440,15 +446,21 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    private void addCoinsToFile(){
-        String Json = gson.toJson(coins);
+    private void addCoinsToFile(String name){
+            try {
+                Writer writer = new FileWriter("app/src/main/res/Json/" + name + ".json");
+                new Gson().toJson(DigitalCoin.getObjectByName(name), writer);
+                writer.close();
 
-
+            } catch (IOException e) {
+                e.printStackTrace();
+        }
     }
 
-    private void updateLinearLayoutWithGson(String json){
-//        ArrayList<DigitalCoin> digitalCoins = gson.fromJson(json, DigitalCoin.class);
-
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void updateLinearLayoutWithGson(String jsonName){
+        coins.addAll(new Json<DigitalCoin>().getAllJson("app/src/main/res/Json"));
+        DigitalCoin.allDigitalCoin.addAll(coins);
     }
 
     public void save(String fileName) throws FileNotFoundException {
