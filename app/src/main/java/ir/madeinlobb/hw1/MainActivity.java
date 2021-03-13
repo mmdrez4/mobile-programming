@@ -1,11 +1,15 @@
 package ir.madeinlobb.hw1;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.EventLogTags;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -18,6 +22,7 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
@@ -118,7 +123,13 @@ public class MainActivity extends AppCompatActivity {
         addCoins.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getWebService(1);
+                if (checkConnection()) {
+                    Log.d("CONNECTION", " ok");
+                    getWebService(1);
+                }else {
+                    Log.d("CONNECTION", "not ok");
+                    updateLinearLayoutFromFile(MainActivity.this);
+                }
             }
         });
 
@@ -254,7 +265,6 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("MMD2", name + "-" + symbol + "-" + price + "-" + changeHour + "-" + changeDay + "-" + changeWeek);
                     }
                 } catch (IOException | JSONException e) {
-                    updateLinearLayoutFromFile(MainActivity.this);
                     e.printStackTrace();
                 }
             }
@@ -386,6 +396,21 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+    }
+
+    private boolean checkConnection(){
+//        ConnectivityManager conMgr =  (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+//        NetworkInfo netInfo = conMgr.getActiveNetworkInfo();
+//        return netInfo == null;
+
+        ConnectivityManager mgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = mgr.getActiveNetworkInfo();
+
+        if (netInfo != null) {
+            return netInfo.isConnected();
+        } else {
+            return false;
+        }
     }
 
     private static void setSymbol(String symbol){
