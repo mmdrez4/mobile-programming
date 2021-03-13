@@ -23,6 +23,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,10 +32,12 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -50,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
     static int counter = 0;
     public static String symbol;
     ArrayList<DigitalCoin> coins = new ArrayList<>();
+
+    Gson gson = new Gson();
 
     private static int cores = Runtime.getRuntime().availableProcessors();
     private static ExecutorService executor = Executors.newFixedThreadPool(cores + 1);
@@ -171,22 +176,6 @@ public class MainActivity extends AppCompatActivity {
                 final Request request = new Request.Builder().url(url)
                         .addHeader("X-CMC_PRO_API_KEY", "32d8965f-ed31-4925-975b-da24cf243138")
                         .build();
-
-//                if (status == 1) {
-//                    Log.d("START1", String.valueOf(start));
-//                    url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=" + start + "&limit=" + end + "&aux=platform&cryptocurrency_type=coins";
-//                    Log.d("START2", String.valueOf(start));
-//                } else {
-//                    url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=" + 1 + "&limit=" + end + "&aux=platform&cryptocurrency_type=coins";
-//                }
-//                client = new OkHttpClient().newBuilder()
-//                        .build();
-//                Request request = new Request.Builder()
-//                        .url(url)
-//                        .method("GET", null)
-//                        .addHeader("X-CMC_PRO_API_KEY", "32d8965f-ed31-4925-975b-da24cf243138")
-//                        .addHeader("Cookie", "__cfduid=d27e1c676eafe6c7134bd57d707fcae1c1615039668")
-//                        .build();
 
                 try {
                     Response response = client.newCall(request).execute();
@@ -433,8 +422,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
-
-
     }
 
     private boolean setAddCoins(String symbol, String name, String logoUrl, int price, int changeHour, int changeDay, int changeWeek) {
@@ -453,11 +440,25 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    private boolean checkConnection() {
-//        ConnectivityManager conMgr =  (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-//        NetworkInfo netInfo = conMgr.getActiveNetworkInfo();
-//        return netInfo == null;
+    private void addCoinsToFile(){
+        String Json = gson.toJson(coins);
 
+
+    }
+
+    private void updateLinearLayoutWithGson(String json){
+//        ArrayList<DigitalCoin> digitalCoins = gson.fromJson(json, DigitalCoin.class);
+
+    }
+
+    public void save(String fileName) throws FileNotFoundException {
+        PrintWriter pw = new PrintWriter(new FileOutputStream(fileName));
+        for (DigitalCoin coin : coins)
+            pw.println(coin.getName());
+        pw.close();
+    }
+
+    private boolean checkConnection() {
         ConnectivityManager mgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = mgr.getActiveNetworkInfo();
 
