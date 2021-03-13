@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -48,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     static int start = -9;
     static int counter = 0;
     public static String symbol;
+    ArrayList<Coins> coins = new ArrayList<>();
 
     private static int cores = Runtime.getRuntime().availableProcessors();
     private static ExecutorService executor = Executors.newFixedThreadPool(cores + 1);
@@ -429,6 +431,10 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
+
+    }
+
+    private void setAddCoins(){
 
     }
 
