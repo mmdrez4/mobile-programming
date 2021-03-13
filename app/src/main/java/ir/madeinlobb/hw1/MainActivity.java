@@ -27,7 +27,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,7 +36,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,9 +43,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -56,6 +51,10 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+
+// import org.json.simple.*;
+
+// import org.json.simple.*;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -171,6 +170,26 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void JSON() throws JSONException {
+        JSONObject jsonObject = new JSONObject();
+        //Inserting key-value pairs into the json object
+        jsonObject.put("ID", "1");
+        jsonObject.put("First_Name", "Shikhar");
+        jsonObject.put("Last_Name", "Dhawan");
+        jsonObject.put("Date_Of_Birth", "1981-12-05");
+        jsonObject.put("Place_Of_Birth", "Delhi");
+        jsonObject.put("Country", "India");
+        try {
+            FileWriter file = new FileWriter("E:/output.json");
+            file.write(jsonObject.toString());
+            file.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        System.out.println("JSON file created: "+jsonObject);
+    }
+
     public void stop() {
         executor.shutdown();
     }
@@ -236,9 +255,6 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void run() {
                                     if (firstTime[0]) {
-                                        if (status == 2) {
-                                            coinsLayout.setBackgroundColor(Color.GREEN);
-                                        }
                                         coinName.setText(symbol + "|" + name);
                                         coinPrice.setText(price + "$");
                                         hc.setText("1h: " + changeHour + "%");
@@ -481,10 +497,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void addCoinsToFile(String name){
             try {
-                Writer writer = new FileWriter("app/src/main/res/Json/" + name + ".json");
+                Log.d("Dariush: ", "addCoinsToFile");
+//                Writer writer = new FileWriter("app/src/main/res/Json/" + name + ".json");
+                Writer writer = new FileWriter("/Users/mohammadreza/Desktop/app/src/main/res/Json/" + name + ".json");
                 new Gson().toJson(DigitalCoin.getObjectByName(name), writer);
                 writer.close();
-
             } catch (IOException e) {
                 e.printStackTrace();
         }
@@ -504,18 +521,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private synchronized boolean checkConnection() throws IOException {
-        int timeout = 2000;
-        InetAddress[] addresses = InetAddress.getAllByName("www.google.com");
-        for (InetAddress address : addresses) {
-            if (address.isReachable(timeout)) {
-                counter++;
-                start += 10;
-                return true;
-            }else {
-                return false;
-            }
+        if (isNetworkConnected()) {
+            counter++;
+            start += 10;
+            return true;
         }
         return false;
+    }
+
+    private boolean isNetworkConnected() {
+        ConnectivityManager cm =
+                (ConnectivityManager)MainActivity.this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+        return isConnected;
     }
 
     private static void setSymbol(String symbol) {

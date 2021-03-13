@@ -142,7 +142,10 @@ public class SecondActivity extends AppCompatActivity {
                         final int close = object.getInt("price_close");
                         final int open = object.getInt("price_open");
 
-                        Log.d("SHIT: ", String.valueOf(high));
+                        Log.d("HIGH: ", String.valueOf(high));
+                        Log.d("LOW: ", String.valueOf(low));
+                        Log.d("CLOSE: ", String.valueOf(close));
+                        Log.d("OPEN: ", String.valueOf(open));
 
                         final int finalI = i + 1;
                         SecondActivity.this.runOnUiThread(new Runnable() {
