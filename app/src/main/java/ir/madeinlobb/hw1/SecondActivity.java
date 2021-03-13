@@ -68,6 +68,7 @@ public class SecondActivity extends AppCompatActivity {
                 mainLayout.removeAllViews();
                 mainLayout.addView(barLayout);
                 mainLayout.addView(statusLayout);
+                firstTime[0] = true;
                 try {
                     Log.d("SYMBOL", MainActivity.symbol);
                     getWebService(7, MainActivity.symbol);
@@ -83,6 +84,7 @@ public class SecondActivity extends AppCompatActivity {
                 mainLayout.removeAllViews();
                 mainLayout.addView(barLayout);
                 mainLayout.addView(statusLayout);
+                firstTime[0] = true;
                 try {
                     getWebService(30, MainActivity.symbol);
                 } catch (IOException | JSONException e) {
