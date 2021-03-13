@@ -1,6 +1,5 @@
 package ir.madeinlobb.hw1;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -9,7 +8,6 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.util.EventLogTags;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -22,7 +20,6 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
@@ -32,6 +29,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,17 +38,21 @@ import java.io.OutputStreamWriter;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    static int start = 1;
+    static int start = -9;
+    static int counter = 0;
     public static String symbol;
 
     private static int cores = Runtime.getRuntime().availableProcessors();
     private static ExecutorService executor = Executors.newFixedThreadPool(cores + 1);
+
+    private static boolean isCreated = false;
 
     private int mProgressStatus = 0;
     ProgressBar progressBar;
@@ -91,13 +93,14 @@ public class MainActivity extends AppCompatActivity {
                 mainLayout.removeAllViews();
                 mainLayout.addView(barLayout);
                 mainLayout.addView(coinsLayout);
+                firstTime[0] = true;
 
                 progressBar.setVisibility(View.VISIBLE);
                 final Handler handler = new Handler();
                 executor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        getWebService(2);
+                        getWebService(2, 1, 10 * counter);
                         while (mProgressStatus < 100) {
                             mProgressStatus++;
                             android.os.SystemClock.sleep(50);
@@ -125,8 +128,10 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (checkConnection()) {
                     Log.d("CONNECTION", " ok");
-                    getWebService(1);
-                }else {
+                    getWebService(1, start, 10);
+                    //TODO
+//                    start += 10;
+                } else {
                     Log.d("CONNECTION", "not ok");
                     updateLinearLayoutFromFile(MainActivity.this);
                 }
@@ -135,11 +140,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void stop(){
+    public void stop() {
         executor.shutdown();
     }
 
-    private synchronized void getWebService(final int status) {
+    private synchronized void getWebService(final int status, final int startPoint, final int limit) {
 
         final TextView coinName = findViewById(R.id.coin_name);
         final TextView coinPrice = findViewById(R.id.coin_price);
@@ -150,23 +155,36 @@ public class MainActivity extends AppCompatActivity {
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                int end = start + 4;
-                String url;
-                if (status == 1) {
-                    Log.d("START1", String.valueOf(start));
-                    url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=" + start + "&limit=" + end + "&aux=platform&cryptocurrency_type=coins";
-                    Log.d("START2", String.valueOf(start));
-                } else {
-                    url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=" + 1 + "&limit=" + end + "&aux=platform&cryptocurrency_type=coins";
-                }
-                client = new OkHttpClient().newBuilder()
-                        .build();
-                Request request = new Request.Builder()
-                        .url(url)
-                        .method("GET", null)
+//                int end = start + 4;
+//                String url;
+
+                client = new OkHttpClient();
+
+                HttpUrl.Builder urlBuilder = HttpUrl.parse("https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?limit="
+                        .concat(String.valueOf(limit)).concat("&start=".concat(String.valueOf(startPoint))))
+                        .newBuilder();
+
+                String url = urlBuilder.build().toString();
+
+                final Request request = new Request.Builder().url(url)
                         .addHeader("X-CMC_PRO_API_KEY", "32d8965f-ed31-4925-975b-da24cf243138")
-                        .addHeader("Cookie", "__cfduid=d27e1c676eafe6c7134bd57d707fcae1c1615039668")
                         .build();
+
+//                if (status == 1) {
+//                    Log.d("START1", String.valueOf(start));
+//                    url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=" + start + "&limit=" + end + "&aux=platform&cryptocurrency_type=coins";
+//                    Log.d("START2", String.valueOf(start));
+//                } else {
+//                    url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=" + 1 + "&limit=" + end + "&aux=platform&cryptocurrency_type=coins";
+//                }
+//                client = new OkHttpClient().newBuilder()
+//                        .build();
+//                Request request = new Request.Builder()
+//                        .url(url)
+//                        .method("GET", null)
+//                        .addHeader("X-CMC_PRO_API_KEY", "32d8965f-ed31-4925-975b-da24cf243138")
+//                        .addHeader("Cookie", "__cfduid=d27e1c676eafe6c7134bd57d707fcae1c1615039668")
+//                        .build();
 
                 try {
                     Response response = client.newCall(request).execute();
@@ -274,7 +292,25 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void CreateFile() {
+        try {
+            File myObj = new File("coins.txt");
+            if (myObj.createNewFile()) {
+               Log.d("File created: " , myObj.getName());
+            } else {
+                Log.d("File already exists.", " ");
+            }
+        } catch (IOException e) {
+            Log.d("An error occurred.", " ");
+            e.printStackTrace();
+        }
+        isCreated = true;
+    }
+
     private synchronized void writeToFile(final String data, final Context context) {
+        if (!isCreated){
+            CreateFile();
+        }
         executor.execute(new Runnable() {
             @Override
             public void run() {
@@ -282,8 +318,7 @@ public class MainActivity extends AppCompatActivity {
                     OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput("coins.txt", Context.MODE_PRIVATE));
                     outputStreamWriter.write(data);
                     outputStreamWriter.close();
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     Log.e("Exception", "File write failed: " + e.toString());
                 }
             }
@@ -303,15 +338,14 @@ public class MainActivity extends AppCompatActivity {
                 String receiveString = "";
                 StringBuilder stringBuilder = new StringBuilder();
 
-                while ( (receiveString = bufferedReader.readLine()) != null ) {
+                while ((receiveString = bufferedReader.readLine()) != null) {
                     stringBuilder.append("\n").append(receiveString);
                 }
 
                 inputStream.close();
                 ret = stringBuilder.toString();
             }
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             Log.e("login activity", "File not found: " + e.toString());
         } catch (IOException e) {
             Log.e("login activity", "Can not read file: " + e.toString());
@@ -398,7 +432,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private boolean checkConnection(){
+    private boolean checkConnection() {
 //        ConnectivityManager conMgr =  (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
 //        NetworkInfo netInfo = conMgr.getActiveNetworkInfo();
 //        return netInfo == null;
@@ -407,13 +441,18 @@ public class MainActivity extends AppCompatActivity {
         NetworkInfo netInfo = mgr.getActiveNetworkInfo();
 
         if (netInfo != null) {
-            return netInfo.isConnected();
+            if (netInfo.isConnected()) {
+                counter++;
+                start += 10;
+                return true;
+            }
         } else {
             return false;
         }
+        return false;
     }
 
-    private static void setSymbol(String symbol){
+    private static void setSymbol(String symbol) {
         MainActivity.symbol = symbol;
     }
 
