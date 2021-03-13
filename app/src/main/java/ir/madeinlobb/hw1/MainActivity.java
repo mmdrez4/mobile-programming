@@ -281,6 +281,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String readFromFile(Context context) {
+        Log.d("READ-FROM-FILE", "im here");
         String ret = "";
 
         try {
@@ -310,6 +311,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateLinearLayoutFromFile(MainActivity mainActivity) {
+        Log.d("UPDATE-LAYOUT-FILE", "im here");
         String[] string = readFromFile(mainActivity).split("\n");
 
         final TextView coinName = findViewById(R.id.coin_name);

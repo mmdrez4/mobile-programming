@@ -80,6 +80,9 @@ public class SecondActivity extends AppCompatActivity {
         month.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mainLayout.removeAllViews();
+                mainLayout.addView(barLayout);
+                mainLayout.addView(statusLayout);
                 try {
                     getWebService(30, MainActivity.symbol);
                 } catch (IOException | JSONException e) {
@@ -147,7 +150,7 @@ public class SecondActivity extends AppCompatActivity {
                                     dayNum.setText("DAY" + finalI);
                                     openPrice.setText("   Open Price: " + open);
                                     closePrice.setText("Close Price: " + close);
-                                    lowPrice.setText("Low Price: " + low);
+                                    lowPrice.setText("  Low Price: " + low);
                                     highPrice.setText("High Price: " + high);
                                     statusLayout.setVisibility(View.VISIBLE);
                                     firstTime[0] = false;
