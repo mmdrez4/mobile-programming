@@ -45,6 +45,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -149,14 +152,18 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (isTimerFinished) {
                     startTimer();
-                    if (checkConnection()) {
-                        Log.d("CONNECTION", " ok");
-                        getWebService(1, start, 10);
-                        //TODO
-//                    start += 10;
-                    } else {
-                        Log.d("CONNECTION", "not ok");
-//                        updateLinearLayoutFromFile(MainActivity.this);
+                    try {
+                        if (checkConnection()) {
+                            Log.d("CONNECTION", " ok");
+                            getWebService(1, start, 10);
+                            //TODO
+    //                    start += 10;
+                        } else {
+                            Log.d("CONNECTION", "not ok");
+    //                        updateLinearLayoutFromFile(MainActivity.this);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 }
             }
@@ -496,18 +503,17 @@ public class MainActivity extends AppCompatActivity {
         pw.close();
     }
 
-    private synchronized boolean checkConnection() {
-        ConnectivityManager mgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = mgr.getActiveNetworkInfo();
-
-        if (netInfo != null) {
-            if (netInfo.isConnected()) {
+    private synchronized boolean checkConnection() throws IOException {
+        int timeout = 2000;
+        InetAddress[] addresses = InetAddress.getAllByName("www.google.com");
+        for (InetAddress address : addresses) {
+            if (address.isReachable(timeout)) {
                 counter++;
                 start += 10;
                 return true;
+            }else {
+                return false;
             }
-        } else {
-            return false;
         }
         return false;
     }
