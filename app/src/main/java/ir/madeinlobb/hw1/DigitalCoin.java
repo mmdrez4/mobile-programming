@@ -1,6 +1,6 @@
 package ir.madeinlobb.hw1;
 
-public class Coins {
+public class DigitalCoin {
     private String symbol;
     private String name;
     private String logoUrl;
@@ -9,7 +9,7 @@ public class Coins {
     private int changeDay;
     private int changeWeek;
 
-    public Coins(String symbol, String name, String logoUrl, int price, int changeHour, int changeDay, int changeWeek) {
+    public DigitalCoin(String symbol, String name, String logoUrl, int price, int changeHour, int changeDay, int changeWeek) {
         this.symbol = symbol;
         this.name = name;
         this.logoUrl = logoUrl;
